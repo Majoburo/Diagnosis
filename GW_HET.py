@@ -297,7 +297,7 @@ def main():
     targ_logprob = targs.columns[5].data
 
     #read in HET observability data file
-    hetf = 'data/HET_opt_tracking.txt'
+    hetf = args.HET_track
     het = ascii.read(hetf)
     #print(het)
     h_dec = het.columns[0].data

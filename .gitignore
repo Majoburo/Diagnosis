@@ -1,3 +1,9 @@
+#Program outputs
+LST_visits_PI_*.pdf
+MOLL_GWHET.pdf
+exptimes.out
+galaxies.dat
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
