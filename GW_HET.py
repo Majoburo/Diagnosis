@@ -291,7 +291,7 @@ def main():
     #parse. IDs first, assume
     targ_id = targs.columns[0].data
     targ_ra = targs.columns[1].data
-    targ_dec = targs.columns[2].data+90
+    targ_dec = targs.columns[2].data
     targ_exptime = targs.columns[3].data
     targ_nvis = targs.columns[4].data
     targ_logprob = targs.columns[5].data
