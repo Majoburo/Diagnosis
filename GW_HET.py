@@ -481,7 +481,7 @@ def main():
         a.set_ylim(min(targ_logprob)-ystep,max(targ_logprob)+ystep)
 
         a.set_xlabel(r'LST [h]', fontname='Arial', fontsize=22, fontweight='normal')
-        a.set_ylabel(r'Normalized Probability (LOG SCALE)', fontname='Arial', fontsize=22, fontweight='normal')
+        a.set_ylabel(r'Probability (LOG SCALE)', fontname='Arial', fontsize=22, fontweight='normal')
             
 #fix manually in two cases:
         if (c_t==1): dolab1(fig)
