@@ -6,9 +6,9 @@
 
 [Running `DIAGNOSIS`](https://github.com/Majoburo/GWHET-obs/edit/master/README.md#Running-`DIAGNOSIS`)
 
-[Data Products]
+[Data Products](https://github.com/Majoburo/GWHET-obs/edit/master/README.md#Data-Products)
 
-[Examples]
+[Examples](https://github.com/Majoburo/GWHET-obs/edit/master/README.md#Examples)
 
 Listener
 
@@ -20,7 +20,7 @@ HETDEX observation tools for a GW event
 - Continuosly listen to the [Gamma-ray Coordinates Network/Transient Astronomy Network (GCN/TAN)](https://gcn.gsfc.nasa.gov/) for alerts on gravitational wave events.
 - When triggered, if the event is likely to be a binary neutron star merger (BNS) or a black hole-neutron star merger (BHNS), `DIAGNOSIS` will download the asociated skymap, identify *if* and *when* the 90% probability region falls within the HET pupil, and if so, inform the observers.
 - `DIAGNOSIS` will also query the 2MASS catalog for galaxies within the observable 90% probability region, organize them by probability, and give their local sidereal times to start observations.
-- Finally, if VIRUS where to locate the source of the graviational waves, `DIAGNOSIS` also provides a tool to report the coordinates back to the GCN/TAN.
+- Finally, if VIRUS were to locate the source of the gravitational waves, `DIAGNOSIS` also provides a tool to report the coordinates back to the GCN/TAN.
 
 This is a beta tool.
 
