@@ -3,8 +3,6 @@ import smtplib
 
 username = 'virusgwhet@gmail.com' 
 password = 'xXYk4S8byXvG88u'
-numbers = [('6015295332','att'),('5125763501','tmobile')]
-emails = ['majoburo@gmail.com','rjrosati@utexas.edu']
 carriers = {'tmobile': '@tmomail.net', 'att': '@txt.att.net'}
             
 def SendText(content,numbers=numbers,emails=emails):
