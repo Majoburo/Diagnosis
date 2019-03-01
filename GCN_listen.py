@@ -65,7 +65,7 @@ def process_gcn(payload, root):
                     int(round(100 * probfull))))
             print('{:.1f} hours till you can observe the 90 % prob region.'.format(
                     timetill90))
-            email_ip.SendText('GW ALERT! 90 % prob region accesible in {:.1f}'.format(
+            email_ip.SendText('GW ALERT! 90 % prob region accesible in {:.1f} hours.'.format(
                     timetill90))
 
     return

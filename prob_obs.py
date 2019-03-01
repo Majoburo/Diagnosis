@@ -115,10 +115,10 @@ def prob_observable(m, header, time, plot = False):
         iminth = np.argmin(HETtheta - theta90[np.argmin(phi90)])
         #at the right declination
         wsecs = (np.min(phi90)+np.pi-np.max(HETphi[iminth]))*12*3600/np.pi 
-        if wsecs > nightime:
+        if wsecs > nightime.value:
             return 0 , 0 , -99
         else:
-            timetill90 = (wsecs+timetilldark)/3600
+            timetill90 = (wsecs+timetilldark.value)/3600
             #print('{:.1f} hours till you can observe the 90 %% prob region.'.format(
             #    (wsecs+timetilldark)/3600))
         #else if np.min(phi90) > np.max(HETphi):a

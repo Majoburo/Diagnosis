@@ -1,8 +1,11 @@
 #Program outputs
-LST_visits_PI_*.pdf
-MOLL_GWHET.pdf
-exptimes.out
+MOLL_*.pdf
+LST*.out
+LST_*.pdf
 galaxies*.dat
+
+#private info
+private.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
