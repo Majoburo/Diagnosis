@@ -4,7 +4,7 @@
 
 [Overview](https://github.com/Majoburo/GWHET-obs/edit/master/README.md#Overview)
 
-[Running Diagnosis]
+[Running `DIAGNOSIS`]
 
 [Data Products]
 
