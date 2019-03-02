@@ -43,7 +43,7 @@ def process_gcn(payload, root):
         print(key, '=', value)
     https, skymapfits = os.path.split(params['skymap_fits'])
     params['skymap'] = skymapfits
-    download_file(params['skymap_fits'])
+    download_file(params['skymap_fits'],cache=True)
     print("Skymap downloaded.")
 
     if 'skymap_fits' in params:
@@ -78,7 +78,6 @@ def main():
     payload = open('MS181101ab-1-Preliminary.xml', 'rb').read()
     root = lxml.etree.fromstring(payload)
     process_gcn(payload, root)
-    
     get_galaxies.write_catalog2MASS(params['skymap'])
     #get_galaxies.write_catalogGLADE(params['skymap'])
     get_LST.get_LST(targf = 'galaxies2MASS.dat')

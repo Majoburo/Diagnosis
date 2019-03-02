@@ -31,15 +31,16 @@ def parseargs():
             setattr(namespace, self.dest, filename)
 
     parser = argparse.ArgumentParser(description='FIND GALAXIES TO OBSERVE IN TWO CATALOGS')
-    parser.add_argument('--LIGO', dest='loc_ligo', default='https://dcc.ligo.org/public/0146/G1701985/001/LALInference_v2.fits.gz', action=GetLoc, help='HTTPS link to LIGO event localization')
+    parser.add_argument('--http', dest='fits', default='https://dcc.ligo.org/public/0146/G1701985/001/LALInference_v2.fits.gz', action=GetLoc, help='HTTPS link to LIGO event localization. It will download the file if not cached.')
+    parser.add_argument('-cat', dest='cat', default='2MASS', action=GetLoc, help='Specify which catalog to use: 2MASS or GLADE')
     args = parser.parse_args()
 
     return args
 
-def write_catalog2MASS(loc_ligo):
+def write_catalog2MASS(fits):
 
         # Reading in the skymap prob and header
-        locinfo, header = hp.read_map(loc_ligo, field=range(4), h=True)
+        locinfo, header = hp.read_map(fits, field=range(4), h=True)
         prob, distmu, distsigma, distnorm = locinfo
         #Getting healpix resolution and pixel area in deg^2
         npix = len(prob)
@@ -83,10 +84,10 @@ def write_catalog2MASS(loc_ligo):
         return cattop,logptop
 
 
-def write_catalogGLADE(loc_ligo):
+def write_catalogGLADE(fits):
     
         # Reading in the skymap prob and header
-        locinfo, header = hp.read_map(loc_ligo, field=range(4), h=True)
+        locinfo, header = hp.read_map(fits, field=range(4), h=True)
         prob, distmu, distsigma, distnorm = locinfo
         #Getting healpix resolution and pixel area in deg^2
         npix = len(prob)
@@ -118,13 +119,17 @@ def write_catalogGLADE(loc_ligo):
         cattop.add_columns([index,logprob,exptime,Nvis])
         ascii.write(cattop['index','RAJ2000','DEJ2000','exptime','Nvis','LogProb'], 'galaxiesGLADE.dat', overwrite=True)
         return cattop,logptop
-    
+
 def main():
-    
+
     args = parseargs()
-    write_catalog2MASS(args.loc_ligo)
-    write_catalogGLADE(args.loc_ligo)
-    
+    if args.cat == 'GLADE':
+        write_catalogGLADE(args.fits)
+    elif args.cat == '2MASS':
+        write_catalog2MASS(args.fits)
+    else:
+        print('Must specify either GLADE or 2MASS as catalogs.')
+
 if __name__== "__main__":
     main()
 
