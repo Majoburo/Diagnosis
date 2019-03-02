@@ -27,8 +27,6 @@ This is a beta tool.
 ## Running `DIAGNOSIS`
 
 ### Requirements
-In order to receive GCN alerts you will have to sign up to the GCN network. Please follow steps 1 and 2 in the [LIGO-Virgo EM Follow-Up Tutorial](https://dcc.ligo.org/public/0118/G1500442/010/ligo-virgo-emfollowup-tutorial.html) to do so.
-
 
 `DIAGNOSIS` relies on a few third-party Python packages. These include:
 
@@ -68,7 +66,12 @@ python diagnosis.py
 ```
 Details respect to the inputs can be seen in the arguments below.
 
-If VIRUS were to locate the source of the gravitational waves, `DIAGNOSIS` also provides submit_gracedb.py, a tool to report the coordinates back to the GCN/TAN. Details with respect to the input arguments are below.
+
+If VIRUS were to locate the source of the gravitational waves, `DIAGNOSIS` also provides submit_gracedb.py, a tool to report the coordinates back to the GCN/TAN.
+
+In order to submit GCN alerts you will have to sign up to the GCN network. Please follow steps 1 and 2 in the [LIGO-Virgo EM Follow-Up Tutorial](https://dcc.ligo.org/public/0118/G1500442/010/ligo-virgo-emfollowup-tutorial.html) to do so.
+
+Details with respect to the input arguments of submit_gracedb.py are below.
 ```
 usage: submit_gracedb.py [-h] [-c COMMENT]
                          group grace_id ralist declist rawithlist decwithlist
