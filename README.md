@@ -43,7 +43,7 @@ This is a beta tool.
 
 The fastest way to install the dependencies is with pip, a package manager that comes with most Python distributions. To install these packages with pip, run the following command:
 ```
-$ pip install astropy gcn healpy smtplib numpy matplotlib os scipy argparse astroquery pandas
+$ pip install astropy pygcn healpy numpy matplotlib scipy argparse astroquery pandas
 ```
 
 ### Download and Install
@@ -56,7 +56,7 @@ git clone https://github.com/Majoburo/Diagnosis.git
 In order to alert the relevant parties, `DIAGNOSIS` requires sensitive information that cannot be saved in a public git repository. Before running, be sure to acquire `private.py` from:
 ```
 cd WHEREVER
-scp username@stampede2:/work/03237/majoburo/stampede2/DIAGNOSIS/private.py
+scp username@stampede2.tacc.utexas.edu:/work/03237/majoburo/stampede2/DIAGNOSIS/private.py
 ```
 
 ### Running the code
