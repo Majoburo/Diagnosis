@@ -10,8 +10,9 @@ def main():
     root = lxml.etree.fromstring(payload)
     GCN_listen.process_gcn(payload, root)
     params = GCN_listen.params
-    #get_galaxies.write_catalog2MASS(params['skymap'])
-    #get_galaxies.write_catalogGLADE(params['skymap'])
+    get_galaxies.write_catalog2MASS(params['skymap_fits'])
+    #get_galaxies.write_catalogGLADE(params['skymap_fits'])
     get_LST.get_LST(targf = 'galaxies2MASS.dat')
 if __name__== "__main__":
     main()
+

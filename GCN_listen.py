@@ -43,12 +43,13 @@ def process_gcn(payload, root):
         print(key, '=', value)
     https, skymapfits = os.path.split(params['skymap_fits'])
     params['skymap'] = skymapfits
-    download_file(params['skymap_fits'],cache=True)
+    filename = download_file(params['skymap_fits'],cache=True)
+    params['skymap_fits'] = filename
     print("Skymap downloaded.")
 
     if 'skymap_fits' in params:
         # Read the HEALPix sky map and the FITS header.
-        skymap, header = hp.read_map(skymapfits,
+        skymap, header = hp.read_map(filename,
                                      h=True, verbose=False)
         header = dict(header)
         # Print some values from the FITS header.
@@ -78,8 +79,8 @@ def main():
     payload = open('MS181101ab-1-Preliminary.xml', 'rb').read()
     root = lxml.etree.fromstring(payload)
     process_gcn(payload, root)
-    get_galaxies.write_catalog2MASS(params['skymap'])
-    #get_galaxies.write_catalogGLADE(params['skymap'])
+    get_galaxies.write_catalog2MASS(params['skymap_fits'])
+    #get_galaxies.write_catalogGLADE(params['skymap_fits'])
     get_LST.get_LST(targf = 'galaxies2MASS.dat')
 if __name__== "__main__":
     main()
