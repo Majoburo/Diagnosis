@@ -27,15 +27,16 @@ This is a beta tool.
 ## Running `DIAGNOSIS`
 
 ### Requirements
+In order to receive GCN alerts you will have to sign up to the GCN network. Please follow steps 1 and 2 in the [LIGO-Virgo EM Follow-Up Tutorial](https://dcc.ligo.org/public/0118/G1500442/010/ligo-virgo-emfollowup-tutorial.html) to do so.
+
+
 `DIAGNOSIS` relies on a few third-party Python packages. These include:
 
 - Astropy
-- gcn
+- pygcn
 - healpy
-- smtplib
 - numpy
 - matplotlib
-- os
 - scipy
 - argparse
 - astroquery
