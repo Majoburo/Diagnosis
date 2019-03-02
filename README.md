@@ -10,10 +10,6 @@
 
 [Examples](https://github.com/Majoburo/GWHET-obs/edit/master/README.md#Examples)
 
-Listener
-
-Submiter
-HETDEX observation tools for a GW event
 
 ## Overview
 `DIAGNOSIS` is a low latency HET observation planner for GW events. `DIAGNOSIS` is a modular code that will:
