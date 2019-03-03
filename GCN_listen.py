@@ -4,11 +4,21 @@ from prob_obs import prob_observable
 from astropy.time import Time
 from astropy.utils.data import download_file
 import email_ip, get_galaxies, get_LST
-import os
-
-
+import os, urllib
+import argparse
+import urllib.request
+import lxml
 plotting = True
 params = {}
+args = 0
+
+def parseargs():
+
+    parser = argparse.ArgumentParser(description='Receive and parse GCN alerts, alert observers and create observing tools.')
+    parser.add_argument('-cat', dest='cat', default=['2MASS'], help='Specify which catalog to use: 2MASS or GLADE')
+    args = parser.parse_args()
+
+    return args
 
 # Function to call every time a GCN is received.
 # Run only for notices of type
@@ -38,18 +48,20 @@ def process_gcn(payload, root):
     if params['Group'] != 'CBC':
         return
 
-    # Print all parameters.
-    for key, value in params.items():
-        print(key, '=', value)
+    # Print and save all parameters.
+    with open('./'+params['GraceID']+'.dat','w') as f:
+        for key, value in params.items():
+            print(key, '=', value)
+            f.write('%s = %s\n'%(key,value))
+
     https, skymapfits = os.path.split(params['skymap_fits'])
-    params['skymap'] = skymapfits
-    filename = download_file(params['skymap_fits'],cache=True)
-    params['skymap_fits'] = filename
+    skymap_local,_ = urllib.request.urlretrieve(params['skymap_fits'],'./'+params['GraceID']+'.fits')
+    params['skymap_fits'] = skymap_local
     print("Skymap downloaded.")
 
     if 'skymap_fits' in params:
         # Read the HEALPix sky map and the FITS header.
-        skymap, header = hp.read_map(filename,
+        skymap, header = hp.read_map(params['skymap_fits'],
                                      h=True, verbose=False)
         header = dict(header)
         # Print some values from the FITS header.
@@ -68,19 +80,22 @@ def process_gcn(payload, root):
                     timetill90))
             email_ip.SendText('GW ALERT! 90 % prob region accesible in {:.1f} hours.'.format(
                     timetill90))
+        for catalog in args.cat:
+            get_galaxies.write_catalog(params,catalog)
+            get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(catalog,params['GraceID']))
+        #email_ip.SendText()
 
     return
 
 def main():
     # Listen for GCNs until the program is interrupted
     # (killed or interrupted with control-C).
+    global args
+    args = parseargs()
     #gcn.listen(handler=process_gcn, port=8099)
-    import lxml.etree
+    #import lxml.etree
     payload = open('MS181101ab-1-Preliminary.xml', 'rb').read()
     root = lxml.etree.fromstring(payload)
     process_gcn(payload, root)
-    get_galaxies.write_catalog2MASS(params['skymap_fits'])
-    #get_galaxies.write_catalogGLADE(params['skymap_fits'])
-    get_LST.get_LST(targf = 'galaxies2MASS.dat')
 if __name__== "__main__":
     main()

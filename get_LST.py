@@ -17,6 +17,7 @@ HET_track = 'HET_opt_tracking.txt'
 obs_plot = True
 
 def get_LST(targf = 'galaxies2MASS.dat'):
+    GraceID = targf.split('_')[1].split('.')[0]
     #trimester year and number
     c_y = 2019
     c_t = 1
@@ -337,7 +338,7 @@ def get_LST(targf = 'galaxies2MASS.dat'):
 
 
 
-    with open('exptimes.out','w') as f:
+    with open('LSTs_%s.out'%GraceID,'w') as f:
         f.write("ID RA DEC LST1_start LST1_stop LST2_start LST2_stop Nvis Exptime LogProb \n")
         for ra,dec,t1,t2,t3,t4,i,nv,texp,tprob in zip(targ_ra, targ_dec, LST1_start, LST1_stop, LST2_start, LST2_stop, targ_id, targ_nvis,targ_exptime, targ_logprob):
             #if valid, add first trajectory for as many visits as needed
@@ -396,7 +397,7 @@ def get_LST(targf = 'galaxies2MASS.dat'):
                 a.plot([-1+offs,25+offs],[l,l],color='grey',lw=1,ls=':',alpha=0.8)
 
 
-        graout = 'LST_visits_PI_'+str(c_y)+'-'+str(c_t)+'.pdf'
+        graout = 'LSTs_'+GraceID+'.pdf'
 
         fig.savefig(graout, bbox_inches='tight')
 

@@ -15,7 +15,6 @@ def prob_observable(m, header, time, plot = False):
     
     """
     
-
     # Determine resolution of sky map
     npix = len(m)
     nside = hp.npix2nside(npix)
@@ -106,6 +105,8 @@ def prob_observable(m, header, time, plot = False):
     newpix = hp.ang2pix(nside, HETtheta, HETphi)
     
     timetill90 = 0
+    import pdb
+    pdb.set_trace()
     if not len(np.intersect1d(p90i,newpix))>0:
         if not len(np.intersect1d(p90i,hetfullpix))>0:
             return 0 , 0 , -99
@@ -159,7 +160,7 @@ def prob_observable(m, header, time, plot = False):
         hp.mollview(m, coord='C', cbar=False, max=1, title='HET NOW',)
         hp.graticule(local=True)
 
-        plt.savefig('MOLL_GWHET.pdf')
+        plt.savefig('MOLL_GWHET_%s.pdf'%header['OBJECT'])
         #plt.show()
 
     # Done!
