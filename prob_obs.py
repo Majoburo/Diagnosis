@@ -4,6 +4,8 @@ import astropy.time
 import astropy.units as u
 import numpy as np
 from astropy.coordinates import Angle
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
@@ -105,8 +107,8 @@ def prob_observable(m, header, time, plot = False):
     newpix = hp.ang2pix(nside, HETtheta, HETphi)
     
     timetill90 = 0
-    import pdb
-    pdb.set_trace()
+    #import pdb
+    #pdb.set_trace()
     if not len(np.intersect1d(p90i,newpix))>0:
         if not len(np.intersect1d(p90i,hetfullpix))>0:
             return 0 , 0 , -99

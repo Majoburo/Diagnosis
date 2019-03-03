@@ -6,6 +6,8 @@ Created on Thu Feb 21 13:48:25 2019
 @author: majoburo
 """
 import numpy as np # needed for vector operations
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib import pyplot as plt # plotting skymaps
 from astropy.io import  ascii
 import astropy.units as u
