@@ -8,6 +8,7 @@ import os, urllib
 import argparse
 import urllib.request
 import lxml
+
 plotting = True
 params = {}
 args = 0
@@ -63,6 +64,7 @@ def process_gcn(payload, root):
         skymap, header = hp.read_map(params['skymap_fits'],
                                      h=True, verbose=False)
         header = dict(header)
+        header['GraceID'] = params['GraceID']
         # Print some values from the FITS header.
         print('Distance =', header['DISTMEAN'], '+/-', header['DISTSTD'])
         with open('./'+params['GraceID']+'.dat','a') as f:
@@ -85,7 +87,14 @@ def process_gcn(payload, root):
             get_galaxies.write_catalog(params,catalog)
             get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(catalog,params['GraceID']))
         with open('./'+params['GraceID']+'.dat','r') as f:
-            emailcontent = f.read()
+            emailcontent = '### {} GW ALERT ###\n'.format(params['AlertType'])
+            emailcontent += 'Time until 90% probability region: {:.1f} hours\n\n'.format(timetill90)
+            emailcontent += f.read()
+            emailcontent += '\n\n'
+            emailcontent += "If you happen to find the location of the source, please submit coordinates to GraceDB using submit_gracedb.py. \n"
+            emailcontent += '######\n'
+            emailcontent += "Alert created with DIAGNOSIS, for more information on the software and data products, please refer to the wiki: \n"
+            emailcontent += "https://github.com/Majoburo/Diagnosis \n"
         email_ip.SendText(emailcontent,
                 plotfiles=[x.format(params['GraceID']) for x in ['LSTs_{}.pdf','MOLL_GWHET_{}.pdf']],
                 lstfile = 'LSTs_{}.out'.format(params['GraceID']),
@@ -98,10 +107,10 @@ def main():
     # (killed or interrupted with control-C).
     global args
     args = parseargs()
-    #gcn.listen(handler=process_gcn, port=8099)
-    import lxml.etree
-    payload = open('MS181101ab-1-Preliminary.xml', 'rb').read()
-    root = lxml.etree.fromstring(payload)
-    process_gcn(payload, root)
+    gcn.listen(handler=process_gcn, port=8099)
+    #import lxml.etree
+    #payload = open('MS181101ab-1-Preliminary.xml', 'rb').read()
+    #root = lxml.etree.fromstring(payload)
+    #process_gcn(payload, root)
 if __name__== "__main__":
     main()

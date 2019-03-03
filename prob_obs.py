@@ -162,7 +162,7 @@ def prob_observable(m, header, time, plot = False):
         hp.mollview(m, coord='C', cbar=False, max=1, title='HET NOW',)
         hp.graticule(local=True)
 
-        plt.savefig('MOLL_GWHET_%s.pdf'%header['OBJECT'])
+        plt.savefig('MOLL_GWHET_%s.pdf'%header['GraceID'])
         #plt.show()
 
     # Done!
