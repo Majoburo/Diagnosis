@@ -65,6 +65,8 @@ def process_gcn(payload, root):
         header = dict(header)
         # Print some values from the FITS header.
         print('Distance =', header['DISTMEAN'], '+/-', header['DISTSTD'])
+        with open('./'+params['GraceID']+'.dat','a') as f:
+            f.write('Distance = {} +/- {}\n'.format(header['DISTMEAN'], header['DISTSTD']))
         time = Time.now()
 
         prob, probfull, timetill90 = prob_observable(skymap, header, time, plot=plotting)
@@ -78,11 +80,16 @@ def process_gcn(payload, root):
             print('{:.1f} hours till you can observe the 90 % prob region.'.format(
                     timetill90))
             email_ip.SendText('{} GW ALERT! Time till 90% prob region: {:.1f} hours'.format(params['AlertType'],
-                    timetill90))
+                    timetill90),emails=[])
         for catalog in args.cat:
             get_galaxies.write_catalog(params,catalog)
             get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(catalog,params['GraceID']))
-        #email_ip.SendText()
+        with open('./'+params['GraceID']+'.dat','r') as f:
+            emailcontent = f.read()
+        email_ip.SendText(emailcontent,
+                plotfiles=[x.format(params['GraceID']) for x in ['LSTs_{}.pdf','MOLL_GWHET_{}.pdf']],
+                lstfile = 'LSTs_{}.out'.format(params['GraceID']),
+                numbers=[])
 
     return
 
@@ -91,10 +98,10 @@ def main():
     # (killed or interrupted with control-C).
     global args
     args = parseargs()
-    gcn.listen(handler=process_gcn, port=8099)
-    #import lxml.etree
-    #payload = open('MS181101ab-1-Preliminary.xml', 'rb').read()
-    #root = lxml.etree.fromstring(payload)
-    #process_gcn(payload, root)
+    #gcn.listen(handler=process_gcn, port=8099)
+    import lxml.etree
+    payload = open('MS181101ab-1-Preliminary.xml', 'rb').read()
+    root = lxml.etree.fromstring(payload)
+    process_gcn(payload, root)
 if __name__== "__main__":
     main()

@@ -4,9 +4,10 @@ from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
+import os.path
 
 carriers = {'tmobile': '@tmomail.net', 'att': '@txt.att.net'}
-def SendText(content,emailcontent=None,plotfiles=[],numbers=pr.numbers,emails=pr.emails):
+def SendText(content,emailcontent=None,plotfiles=[],lstfile=None,numbers=pr.numbers,emails=pr.emails):
     try:
         mailserver = smtplib.SMTP('smtp.gmail.com', 587)
         mailserver.ehlo()
@@ -24,15 +25,20 @@ def SendText(content,emailcontent=None,plotfiles=[],numbers=pr.numbers,emails=pr
             msg.attach(MIMEText(content))
         else:
             msg.attach(MIMEText(emailcontent))
-        import pdb
-        pdb.set_trace()
+        if lstfile != None:
+            with open(lstfile) as f:
+                attach = MIMEApplication(f.read())
+                attach.add_header('Content-Disposition', 'attachment', filename = lstfile)
+                msg.attach(attach)
         for plotfile in plotfiles:
+            if not os.path.exists(plotfile):
+                print("Couldn't find " + plotfile)
+                continue
             with open(plotfile,'rb') as f:
                 attach = MIMEApplication(f.read(),'pdf')
                 attach.add_header('Content-Disposition', 'attachment', filename = plotfile)
                 msg.attach(attach)
         for em in emails:
-            msg['To'] = em
             mailserver.sendmail(pr.username,em,msg.as_string())
             print("Sent alert to {}.".format(em))
         mailserver.close()
