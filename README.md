@@ -104,7 +104,7 @@ LSTs_{EVENT}.out
 
 List of galaxies with at most 99% of the probability of the most probable galaxy with their corresponding LSTs.
 
-MOLL_{EVENT}.pdf
+MOLL_GWHET_{EVENT}.pdf
 
 Mollweide projection plot of the sky for the time of the alert. It displays:
 - GREEN: HET pupil.
