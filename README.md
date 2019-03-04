@@ -98,19 +98,19 @@ optional arguments:
 
 ### Data Products
 
-#####{EVENT}.fits.gz
+##### {EVENT}.fits.gz
 
 Healpy probability skymap of the GW event.
 
-#####galaxies_{CATALOG}_{EVENT}.dat
+##### galaxies_{CATALOG}_{EVENT}.dat
 
 List of all galaxies, within the 90% confidence region observable by HET, with at most 99% of the probability of the most probable galaxy .
 
-####LSTs_{EVENT}.out
+#### LSTs_{EVENT}.out
 
 List of at most 50 most probable observable galaxies with their corresponding LSTs.
 
-####MOLL_GWHET_{EVENT}.pdf
+#### MOLL_GWHET_{EVENT}.pdf
 ![MOLL_GWHET_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/MOLL_GWHET_MS181101ab.png)
 
 Mollweide projection plot of the sky for the time of the alert. It displays:
@@ -119,7 +119,7 @@ Mollweide projection plot of the sky for the time of the alert. It displays:
 - TURQUOISE: AirMass > 2.5.
 - BLUE: Bellow the horizon.
 
-####LSTs_{EVENT}.pdf
+#### LSTs_{EVENT}.pdf
 ![LSTs_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/LSTs_MS81101ab.png)
 
 
