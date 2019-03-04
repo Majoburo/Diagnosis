@@ -45,7 +45,7 @@ def process_gcn(payload, root):
               for elem in root.iterfind('.//Param')}
 
     # Respond only to 'CBC' events that have a change of EMBRIGHT.
-    if params['Group'] != 'CBC' or (float(params['BNS']) < 0.5 and float(params['NSBH']) < 0.5):
+    if params['Group'] != 'CBC' or (float(params['BNS']) + float(params['NSBH']) < 0.5):
         return
 
     # Print and save all parameters.
@@ -81,7 +81,7 @@ def process_gcn(payload, root):
                     int(round(100 * probfull))))
             print('{:.1f} hours till you can observe the 90 % prob region.'.format(
                     timetill90))
-            email_ip.SendText('GW ALERT! Time till 90% prob region is {:.1f} hours'.format(timetill90))
+            email_ip.SendText('GW ALERT! Time till 90% prob region is {:.1f} hours'.format(timetill90),emails=[])
         for catalog in args.cat:
             get_galaxies.write_catalog(params,catalog)
             get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(catalog,params['GraceID']))
