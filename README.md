@@ -106,11 +106,11 @@ Healpy probability skymap of the GW event.
 
 galaxies_{CATALOG}_{EVENT}.dat
 
-List of all galaxies within the 90% confidence region observable by HET.
+List of all galaxies, within the 90% confidence region observable by HET, with at most 99% of the probability of the most probable galaxy .
 
 LSTs_{EVENT}.out
 
-List of galaxies with at most 99% of the probability of the most probable galaxy with their corresponding LSTs.
+List of at most 50 most probable observable galaxies with their corresponding LSTs.
 
 MOLL_GWHET_{EVENT}.pdf
 
@@ -122,7 +122,7 @@ Mollweide projection plot of the sky for the time of the alert. It displays:
 
 LSTs_{EVENT}.pdf
 
-Plot of galaxies with at most 99% of the probability of the most probable galaxy with their corresponding LSTs.
+Plot of at most 50 most probable observable galaxies with their corresponding LSTs.
 
 ### Examples
 
