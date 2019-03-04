@@ -118,7 +118,7 @@ Mollweide projection plot of the sky for the time of the alert. It displays:
 - TURQUOISE: AirMass > 2.5.
 - BLUE: Bellow the horizon.
 
-![LSTs_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/LSTs_MS181101ab.png)
+![LSTs_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/LSTs_MS81101ab.png)
 
 
 Plot of at most 50 most probable observable galaxies with their corresponding LSTs.
