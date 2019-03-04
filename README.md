@@ -61,7 +61,15 @@ scp username@stampede2.tacc.utexas.edu:/work/03237/majoburo/stampede2/DIAGNOSIS/
 python diagnosis.py
 ```
 Details respect to the inputs can be seen in the arguments below.
+```
+usage: diagnose.py [-h] [-cat CAT]
 
+Receive and parse GCN alerts, alert observers and create observing tools.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -cat CAT    Specify which catalog to use: 2MASS or GLADE
+```
 
 If VIRUS were to locate the source of the gravitational waves, `DIAGNOSIS` also provides submit_gracedb.py, a tool to report the coordinates back to the GCN/TAN.
 
@@ -98,11 +106,11 @@ Healpy probability skymap of the GW event.
 
 galaxies_{CATALOG}_{EVENT}.dat
 
-List of all galaxies within the 90% confidence region observable by HET.
+List of all galaxies, within the 90% confidence region observable by HET, with at most 99% of the probability of the most probable galaxy .
 
 LSTs_{EVENT}.out
 
-List of galaxies with at most 99% of the probability of the most probable galaxy with their corresponding LSTs.
+List of at most 50 most probable observable galaxies with their corresponding LSTs.
 
 MOLL_GWHET_{EVENT}.pdf
 
@@ -114,7 +122,7 @@ Mollweide projection plot of the sky for the time of the alert. It displays:
 
 LSTs_{EVENT}.pdf
 
-Plot of galaxies with at most 99% of the probability of the most probable galaxy with their corresponding LSTs.
+Plot of at most 50 most probable observable galaxies with their corresponding LSTs.
 
 ### Examples
 
