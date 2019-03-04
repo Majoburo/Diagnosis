@@ -56,7 +56,7 @@ scp username@stampede2.tacc.utexas.edu:/work/03237/majoburo/stampede2/DIAGNOSIS/
 
 `DIAGNOSIS` is meant to be constantly running in the background in order to listen and process any GCN/TAN alerts. To run diagnosis just type:
 ```
-python diagnosis.py
+python diagnose.py
 ```
 Details respect to the inputs can be seen in the arguments below.
 ```
@@ -98,18 +98,19 @@ optional arguments:
 
 ### Data Products
 
-{EVENT}.fits.gz
+#### {EVENT}.fits.gz
 
 Healpy probability skymap of the GW event.
 
-galaxies_{CATALOG}_{EVENT}.dat
+#### galaxies_{CATALOG}_{EVENT}.dat
 
 List of all galaxies, within the 90% confidence region observable by HET, with at most 99% of the probability of the most probable galaxy .
 
-LSTs_{EVENT}.out
+#### LSTs_{EVENT}.out
 
 List of at most 50 most probable observable galaxies with their corresponding LSTs.
 
+#### MOLL_GWHET_{EVENT}.pdf
 ![MOLL_GWHET_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/MOLL_GWHET_MS181101ab.png)
 
 Mollweide projection plot of the sky for the time of the alert. It displays:
@@ -118,7 +119,8 @@ Mollweide projection plot of the sky for the time of the alert. It displays:
 - TURQUOISE: AirMass > 2.5.
 - BLUE: Bellow the horizon.
 
-![LSTs_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/LSTs_MS181101ab.png)
+#### LSTs_{EVENT}.pdf
+![LSTs_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/LSTs_MS81101ab.png)
 
 
 Plot of at most 50 most probable observable galaxies with their corresponding LSTs.
