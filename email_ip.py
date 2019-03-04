@@ -1,5 +1,4 @@
 import smtplib
-import private as pr
 import email.utils
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
@@ -7,9 +6,15 @@ from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
 import os.path
 import datetime
-carriers = {'verizon':'@vtext.com','tmobile': '@tmomail.net', 'att': '@txt.att.net'}
-def SendText(content,emailcontent=None,plotfiles=[],lstfile=None,numbers=pr.numbers,emails=pr.emails):
+import importlib
+carriers = {'gphi':'@msg.fi.google.com','verizon':'@vtext.com','tmobile': '@tmomail.net', 'att': '@txt.att.net'}
+def SendText(content,emailcontent=None,plotfiles=[],lstfile=None,numbers=None,emails=None,recipients='recipients.py'):
     try:
+        pr = importlib.import_module(recipients.split('.')[0])
+        if numbers == None:
+            numbers = pr.numbers
+        if emails == None:
+            emails = pr.emails
         mailserver = smtplib.SMTP('smtp.gmail.com', 587)
         mailserver.ehlo()
         mailserver.starttls()

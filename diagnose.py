@@ -16,7 +16,10 @@ args = 0
 def parseargs():
 
     parser = argparse.ArgumentParser(description='Receive and parse GCN alerts, alert observers and create observing tools.')
+    parser.add_argument('recipients', help = 'Specify python file with list of recipients.')
     parser.add_argument('-cat', dest='cat', default=['2MASS'], help='Specify which catalog to use: 2MASS or GLADE')
+    parser.add_argument('-t','--test', dest='test', action='store_true', help='DEFAULT:FALSE. Run a test. Will not query gcn but use a file stored in the git repo.')
+    parser.add_argument('-e','--send_notification', dest='send_notification', action='store_false', help='DEFAULT:TRUE. Send emails and txt msjs to recipients.')
     args = parser.parse_args()
 
     return args
@@ -33,11 +36,12 @@ def process_gcn(payload, root):
     # Respond only to 'test' events.
     # VERY IMPORTANT! Replace with the following code
     # to respond to only real 'observation' events.
-    if root.attrib['role'] != 'observation':
-        return
+    if args.test:
+        if root.attrib['role'] != 'test':
+            return
+    elif root.attrib['role'] != 'observation':
+            return
     #print('GW ALERT!')
-    #if root.attrib['role'] != 'test':
-    #    return
 
     # Read all of the VOEvent parameters from the "What" section.
     global params
@@ -83,7 +87,8 @@ def process_gcn(payload, root):
                     int(round(100 * probfull))))
             print('{:.1f} hours till you can observe the 90 % prob region.'.format(
                     timetill90))
-            email_ip.SendText('GW ALERT! Time till 90% prob region is {:.1f} hours  '.format(timetill90),emails=[])
+            if args.send_notification:
+                email_ip.SendText('GW ALERT! Time till 90% prob region is {:.1f} hours  '.format(timetill90),emails=[],recipients = args.recipients)
         for catalog in args.cat:
             get_galaxies.write_catalog(params,catalog)
             get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(catalog,params['GraceID']))
@@ -96,11 +101,12 @@ def process_gcn(payload, root):
             emailcontent += '######\n'
             emailcontent += "Alert created with DIAGNOSIS, for more information on the software and data products, please refer to the wiki: \n"
             emailcontent += "https://github.com/Majoburo/Diagnosis \n"
-        email_ip.SendText(emailcontent,
-                plotfiles=[x.format(params['GraceID']) for x in ['LSTs_{}.pdf','MOLL_GWHET_{}.pdf']],
-                lstfile = 'LSTs_{}.out'.format(params['GraceID']),
-                numbers=[])
-
+        if args.send_notification:
+            email_ip.SendText(emailcontent,
+                    plotfiles = [x.format(params['GraceID']) for x in ['LSTs_{}.pdf','MOLL_GWHET_{}.pdf']],
+                    lstfile = 'LSTs_{}.out'.format(params['GraceID']),
+                    numbers = [],
+                    recipients = args.recipients)
     return
 
 def main():
@@ -108,10 +114,12 @@ def main():
     # (killed or interrupted with control-C).
     global args
     args = parseargs()
-    gcn.listen(handler=process_gcn, port=8099)
-    #import lxml.etree
-    #payload = open('MS181101ab-1-Preliminary.xml', 'rb').read()
-    #root = lxml.etree.fromstring(payload)
-    #process_gcn(payload, root)
+    if args.test:
+        import lxml.etree
+        payload = open('MS181101ab-1-Preliminary.xml', 'rb').read()
+        root = lxml.etree.fromstring(payload)
+        process_gcn(payload, root)
+    else:
+        gcn.listen(handler=process_gcn, port=8099)
 if __name__== "__main__":
     main()
