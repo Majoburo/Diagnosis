@@ -384,7 +384,7 @@ def get_LST(targf = 'galaxies2MASS.dat'):
                     a.plot(np.linspace(t3,t4,2), [tprob,tprob],color='blue',lw=1)
                     a.text(t4+0.1, tprob,i,color='black', fontname='Arial',fontsize=10)
                     #print("  track 2 good")
-            outp = "%i %6.f %.6f %.6f %.6f %.6f %.6f %i %i %.6f \n"%(i,ra,dec,t1,t2,t3,t4,nv,texp,tprob) 
+            outp = "%i %.6f %.6f %.6f %.6f %.6f %.6f %i %i %.6f \n"%(i,ra,dec,t1,t2,t3,t4,nv,texp,tprob) 
             f.write(outp)
 
 

@@ -8,7 +8,7 @@ import os.path
 import datetime
 import importlib
 carriers = {'gphi':'@msg.fi.google.com','verizon':'@vtext.com','tmobile': '@tmomail.net', 'att': '@txt.att.net'}
-def SendText(content,emailcontent=None,plotfiles=[],lstfile=None,numbers=None,emails=None,recipients='recipients.py'):
+def SendText(content,emailcontent=None,plotfiles=[],datafiles=[],numbers=None,emails=None,recipients='recipients.py'):
     try:
         pr = importlib.import_module(recipients.split('.')[0])
         if numbers == None:
@@ -38,10 +38,13 @@ def SendText(content,emailcontent=None,plotfiles=[],lstfile=None,numbers=None,em
             msg.attach(MIMEText(content))
         else:
             msg.attach(MIMEText(emailcontent))
-        if lstfile != None:
-            with open(lstfile) as f:
+        for datafile in datafiles:
+            if not os.path.exists(datafile):
+                print("Couldn't find " + datafile)
+                continue
+            with open(datafile) as f:
                 attach = MIMEApplication(f.read())
-                attach.add_header('Content-Disposition', 'attachment', filename = lstfile)
+                attach.add_header('Content-Disposition', 'attachment', filename = datafile)
                 msg.attach(attach)
         for plotfile in plotfiles:
             if not os.path.exists(plotfile):

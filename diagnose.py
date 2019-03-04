@@ -3,7 +3,7 @@ import healpy as hp
 from prob_obs import prob_observable
 from astropy.time import Time
 from astropy.utils.data import download_file
-import email_ip, get_galaxies, get_LST
+import email_ip, get_galaxies, get_LST, make_phaseii
 import os, urllib
 import argparse
 import urllib.request
@@ -92,6 +92,7 @@ def process_gcn(payload, root):
         for catalog in args.cat:
             get_galaxies.write_catalog(params,catalog)
             get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(catalog,params['GraceID']))
+            make_phaseii.make_phaseii('LSTs_{}.out'.format(params['GraceID']))
         with open('./'+params['GraceID']+'.dat','r') as f:
             emailcontent = '### {} GW ALERT ###\n'.format(params['AlertType'])
             emailcontent += 'Time until 90% probability region: {:.1f} hours\n\n'.format(timetill90)
@@ -104,7 +105,7 @@ def process_gcn(payload, root):
         if args.send_notification:
             email_ip.SendText(emailcontent,
                     plotfiles = [x.format(params['GraceID']) for x in ['LSTs_{}.pdf','MOLL_GWHET_{}.pdf']],
-                    lstfile = 'LSTs_{}.out'.format(params['GraceID']),
+                    datafiles = [x.format(params['GraceID']) for x in ['LSTs_{}.out','{}.tsl']] ,
                     numbers = [],
                     recipients = args.recipients)
     return
