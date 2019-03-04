@@ -56,7 +56,7 @@ scp username@stampede2.tacc.utexas.edu:/work/03237/majoburo/stampede2/DIAGNOSIS/
 
 `DIAGNOSIS` is meant to be constantly running in the background in order to listen and process any GCN/TAN alerts. To run diagnosis just type:
 ```
-python diagnosis.py
+python diagnose.py
 ```
 Details respect to the inputs can be seen in the arguments below.
 ```
