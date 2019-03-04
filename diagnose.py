@@ -81,8 +81,7 @@ def process_gcn(payload, root):
                     int(round(100 * probfull))))
             print('{:.1f} hours till you can observe the 90 % prob region.'.format(
                     timetill90))
-            email_ip.SendText('{} GW ALERT! Time till 90% prob region: {:.1f} hours'.format(params['AlertType'],
-                    timetill90),emails=[])
+            email_ip.SendText('GW ALERT! Time till 90% prob region is {:.1f} hours'.format(timetill90))
         for catalog in args.cat:
             get_galaxies.write_catalog(params,catalog)
             get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(catalog,params['GraceID']))
