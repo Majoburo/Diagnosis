@@ -61,7 +61,15 @@ scp username@stampede2.tacc.utexas.edu:/work/03237/majoburo/stampede2/DIAGNOSIS/
 python diagnosis.py
 ```
 Details respect to the inputs can be seen in the arguments below.
+```
+usage: diagnose.py [-h] [-cat CAT]
 
+Receive and parse GCN alerts, alert observers and create observing tools.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -cat CAT    Specify which catalog to use: 2MASS or GLADE
+```
 
 If VIRUS were to locate the source of the gravitational waves, `DIAGNOSIS` also provides submit_gracedb.py, a tool to report the coordinates back to the GCN/TAN.
 
