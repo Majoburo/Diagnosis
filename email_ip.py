@@ -21,8 +21,6 @@ def SendText(content,emailcontent=None,plotfiles=[],lstfile=None,numbers=pr.numb
         #msg['Date'] = email.utils.localtime()
         #msg.preamble = 'Gravitational Wave Alert'
         msg.attach(MIMEText(content))
-        import pdb
-        pdb.set_trace()
         for number,carrier in numbers:
             msg['To'] = number+carriers[carrier]
             mailserver.sendmail(pr.username, number + carriers[carrier], msg.as_string())

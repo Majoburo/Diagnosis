@@ -33,11 +33,11 @@ def process_gcn(payload, root):
     # Respond only to 'test' events.
     # VERY IMPORTANT! Replace with the following code
     # to respond to only real 'observation' events.
-    #if root.attrib['role'] != 'observation':
-    #    return
-    print('GW ALERT!')
-    if root.attrib['role'] != 'test':
+    if root.attrib['role'] != 'observation':
         return
+    #print('GW ALERT!')
+    #if root.attrib['role'] != 'test':
+    #    return
 
     # Read all of the VOEvent parameters from the "What" section.
     global params
@@ -57,6 +57,7 @@ def process_gcn(payload, root):
 
     https, skymapfits = os.path.split(params['skymap_fits'])
     skymap_local,_ = urllib.request.urlretrieve(params['skymap_fits'],'./'+params['GraceID']+'.fits')
+    #skymap_local,_ = urllib.urlretrieve(params['skymap_fits'],'./'+params['GraceID']+'.fits')
     params['skymap_fits'] = skymap_local
     print("Skymap downloaded.")
 
