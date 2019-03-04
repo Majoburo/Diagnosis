@@ -98,11 +98,11 @@ optional arguments:
 
 ### Data Products
 
-##### {EVENT}.fits.gz
+#### {EVENT}.fits.gz
 
 Healpy probability skymap of the GW event.
 
-##### galaxies_{CATALOG}_{EVENT}.dat
+#### galaxies_{CATALOG}_{EVENT}.dat
 
 List of all galaxies, within the 90% confidence region observable by HET, with at most 99% of the probability of the most probable galaxy .
 
