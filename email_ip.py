@@ -1,12 +1,13 @@
 import smtplib
 import private as pr
+import email.utils
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
 import os.path
-
-carriers = {'tmobile': '@tmomail.net', 'att': '@txt.att.net'}
+import datetime
+carriers = {'verizon':'@vtext.com','tmobile': '@tmomail.net', 'att': '@txt.att.net'}
 def SendText(content,emailcontent=None,plotfiles=[],lstfile=None,numbers=pr.numbers,emails=pr.emails):
     try:
         mailserver = smtplib.SMTP('smtp.gmail.com', 587)
@@ -14,8 +15,17 @@ def SendText(content,emailcontent=None,plotfiles=[],lstfile=None,numbers=pr.numb
         mailserver.starttls()
         mailserver.ehlo()
         mailserver.login(pr.username, pr.password)
+        msg = MIMEMultipart()
+        msg['Subject'] = 'GW ALERT'
+        msg['From'] = pr.username
+        #msg['Date'] = email.utils.localtime()
+        #msg.preamble = 'Gravitational Wave Alert'
+        msg.attach(MIMEText(content))
+        import pdb
+        pdb.set_trace()
         for number,carrier in numbers:
-            mailserver.sendmail(pr.username, number + carriers[carrier], content)
+            msg['To'] = number+carriers[carrier]
+            mailserver.sendmail(pr.username, number + carriers[carrier], msg.as_string())
             print("Sent {} to {}.".format(content,number))
         msg = MIMEMultipart()
         msg['Subject'] = 'GW alert'
@@ -46,7 +56,7 @@ def SendText(content,emailcontent=None,plotfiles=[],lstfile=None,numbers=pr.numb
         print('Error sending email!')
 
 def main():
-    SendText('TEST',plotfiles=['LSTs_MS181101ab.pdf','MOLL_GWHET_M2052.pdf'],numbers=[],emails=['majoburo@gmail.com'])
+    SendText('TEST  ',plotfiles=['LSTs_MS181101ab.pdf','MOLL_GWHET_M2052.pdf'],numbers=[('5125763501','tmobile')],emails=['majoburo@gmail.com'])
 
 if __name__=='__main__':
     main()
