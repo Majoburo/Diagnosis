@@ -142,8 +142,10 @@ def get_LST(targf = 'galaxies2MASS.dat'):
 
 
     #read in target ra/dec, exptime, nvis, moon
-    targs = ascii.read(targf)[:50]
-
+    targs = ascii.read(targf)
+    #Only show 50 most probable galaxies
+    if len(targs)>50:
+        targs = targs[:50]
     #parse. IDs first, assume
     targ_id = targs.columns[0].data
     targ_ra = targs.columns[1].data
