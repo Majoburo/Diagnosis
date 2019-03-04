@@ -110,7 +110,7 @@ LSTs_{EVENT}.out
 
 List of at most 50 most probable observable galaxies with their corresponding LSTs.
 
-![MOLL_GWHET_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/MOLL_GWHET_MS181101ab.pdf)
+![MOLL_GWHET_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/MOLL_GWHET_MS181101ab.png)
 
 Mollweide projection plot of the sky for the time of the alert. It displays:
 - GREEN: HET pupil.
@@ -118,7 +118,7 @@ Mollweide projection plot of the sky for the time of the alert. It displays:
 - TURQUOISE: AirMass > 2.5.
 - BLUE: Bellow the horizon.
 
-![LSTs_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/LSTs_MS181101ab.pdf)
+![LSTs_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/LSTs_MS181101ab.png)
 
 
 Plot of at most 50 most probable observable galaxies with their corresponding LSTs.
