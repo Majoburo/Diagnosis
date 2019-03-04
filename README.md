@@ -8,8 +8,6 @@
 
 [Data Products](https://github.com/Majoburo/GWHET-obs/edit/master/README.md#Data-Products)
 
-[Examples](https://github.com/Majoburo/GWHET-obs/edit/master/README.md#Examples)
-
 
 ## Overview
 `DIAGNOSIS` is a low latency HET observation planner for GW events. `DIAGNOSIS` is a modular code that will:
@@ -112,7 +110,7 @@ LSTs_{EVENT}.out
 
 List of at most 50 most probable observable galaxies with their corresponding LSTs.
 
-MOLL_GWHET_{EVENT}.pdf
+![MOLL_GWHET_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/MOLL_GWHET_MS181101ab.pdf)
 
 Mollweide projection plot of the sky for the time of the alert. It displays:
 - GREEN: HET pupil.
@@ -120,10 +118,7 @@ Mollweide projection plot of the sky for the time of the alert. It displays:
 - TURQUOISE: AirMass > 2.5.
 - BLUE: Bellow the horizon.
 
-LSTs_{EVENT}.pdf
+![LSTs_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/LSTs_MS181101ab.pdf)
+
 
 Plot of at most 50 most probable observable galaxies with their corresponding LSTs.
-
-### Examples
-
-Work in progress...
