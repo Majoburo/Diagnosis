@@ -11,11 +11,12 @@ import matplotlib.pyplot as plt
 def no_gaps(area1,area2):
     #IN RADIANS
     #ensure no coordinate gaps in source RAs
+    area1 = area1%(2*np.pi)
     shift = np.pi/6*(1+np.sqrt(5))/2 # use golden ratio so we're guaranteed to terminate eventually (unless area covers whole sky)
     i=0
     while (np.max(area1) - np.min(area1)) > 359*np.pi/180 or (np.max(area2) - np.min(area2)) > 359*np.pi/180:
-        area1 = ((area1 + shift) % 2*np.pi - shift)
-        area2 = ((area2 + shift) % 2*np.pi - shift)
+        area1 = ((area1 + shift) % (2*np.pi) - shift)
+        area2 = ((area2 + shift) % (2*np.pi) - shift)
         i+=1
         if i > 100:
             print("Couldn't calculate time until observation. Time will probably be negative. Check things manually...")
@@ -109,29 +110,35 @@ def prob_observable(m, header, time, plot = False):
             p90i.append(i)
     p90i = np.array(p90i)
     theta90, phi90 = hp.pix2ang(nside, p90i)
-
+    #mask skymap pixels by hetdex accesible region
+    theta90HET = (theta90 > np.min(90-hetpupil[:,2]))*(theta90 < np.max(90-hetpupil[:,2]))
+    phi90HET = phi90[the90HET]
     #if not crossing
     #first find if distribution crosses 0 ra
     
     #ensure no coordinate gaps in hetpupil RAs
     #hetpupil[:,1] = ((hetpupil[:,1] + 180) % 360 - 180)
     HETtheta = (90-hetpupil[:,2])*np.pi/180
-    HETphi = (hetpupil[:,1]+LST)*np.pi/180
+    HETphi = ((hetpupil[:,1]+LST)%360)*np.pi/180
     newpix = hp.ang2pix(nside, HETtheta, HETphi)
     
     timetill90 = 0
     #import pdb
     #pdb.set_trace()
+    #if the region doesn't intersect HET now
     if not len(np.intersect1d(p90i,newpix))>0:
+        #if the region doesn't intersect HET at all
         if not len(np.intersect1d(p90i,hetfullpix))>0:
             return 0 , 0 , -99
         #ensure no coordinate gaps in source RAs
         #if (np.max(phi90) - np.min(phi90)) > 359*(np.pi/180):
         #    phi90 = ((phi90 + 180) % 360 - 180)
-        phi90, HETphi = no_gaps(phi90, HETphi)
-        iminth = np.argmin(HETtheta - theta90[np.argmin(phi90)])
+        #phi90, HETphi = no_gaps(phi90-LST*np.pi/180, HETphi-LST*np.pi/180)
+        phi90HET, HETphi = (phi90HET-LST*np.pi/180)%360, (HETphi-LST*np.pi/180)%360
+        #if the region doesn't intersect HET then it can't cross the origin in phi (since het is there for all thetas)
+        iminth = np.argmin(HETtheta - theta90HET[np.argmin(phi90HET)])
         #at the right declination
-        wsecs = (np.min(phi90)+np.pi-np.max(HETphi[iminth]))*12*3600/np.pi 
+        wsecs = (np.min(phi90HET) - np.max(HETphi[iminth]))*12*3600/np.pi
         if wsecs > nightime.value:
             return 0 , 0 , -99
         else:
