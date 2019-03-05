@@ -17,11 +17,10 @@ def parseargs():
 
     parser = argparse.ArgumentParser(description='Receive and parse GCN alerts, alert observers and create observing tools.')
     parser.add_argument('recipients', help = 'Specify python file with list of recipients.')
-    parser.add_argument('-cat', dest='cat', default = 'GLADE', help='Specify which catalog to use: 2MASS or GLADE')
-    parser.add_argument('-t','--test', dest='test', action = 'store_true', help='DEFAULT:FALSE. Run a test. Will not query gcn but use a file stored in the git repo.')
-    parser.add_argument('-e','--send_notification', dest = 'send_notification', action='store_false', help='DEFAULT:TRUE. Send emails and txt msjs to recipients.')
+    parser.add_argument('-cat', dest='cat', default=['2MASS'], help='Specify which catalog to use: 2MASS or GLADE')
+    parser.add_argument('-t','--test', dest='test', action='count', help='DEFAULT:0. Run a test. With -tt will not query gcn but use a file stored in the git repo. With -t will query gcn for test alerts.')
+    parser.add_argument('-e','--send_notification', dest='send_notification', action='store_false', help='DEFAULT:TRUE. Send emails and txt msjs to recipients.')
     args = parser.parse_args()
-    args.cat = [x.replace(' ', '') for x in args.cat.split(',')]
 
     return args
 
