@@ -139,7 +139,7 @@ def prob_observable(m, header, time, plot = False):
             #print('{:.1f} hours till you can observe the 90 %% prob region.'.format(
             #    (wsecs+timetilldark)/3600))
         #else if np.min(phi90) > np.max(HETphi):a
-    elif timetilldark > 0:
+    elif timetilldark.value > 0:
        # print('{:.1f} hours till you can observe the 90 %% prob region.'.format(
         #        timetilldark.value/3600))
         timetill90 = timetilldark.value/3600

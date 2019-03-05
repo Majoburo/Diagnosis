@@ -10,6 +10,8 @@ import importlib
 carriers = {'gphi':'@msg.fi.google.com','verizon':'@vtext.com','tmobile': '@tmomail.net', 'att': '@txt.att.net'}
 def SendText(content,emailcontent=None,plotfiles=[],datafiles=[],numbers=None,emails=None,recipients='recipients.py'):
     try:
+        if not os.path.exists(recipients):
+            print("Couldn't find " + recipients)
         pr = importlib.import_module(recipients.split('.')[0])
         if numbers == None:
             numbers = pr.numbers

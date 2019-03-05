@@ -18,7 +18,7 @@ def parseargs():
     parser = argparse.ArgumentParser(description='Receive and parse GCN alerts, alert observers and create observing tools.')
     parser.add_argument('recipients', help = 'Specify python file with list of recipients.')
     parser.add_argument('-cat', dest='cat', default=['2MASS'], help='Specify which catalog to use: 2MASS or GLADE')
-    parser.add_argument('-t','--test', dest='test', action='store_true', help='DEFAULT:FALSE. Run a test. Will not query gcn but use a file stored in the git repo.')
+    parser.add_argument('-t','--test', dest='test', action='count', help='DEFAULT:0. Run a test. With -tt will not query gcn but use a file stored in the git repo. With -t will query gcn for test alerts.')
     parser.add_argument('-e','--send_notification', dest='send_notification', action='store_false', help='DEFAULT:TRUE. Send emails and txt msjs to recipients.')
     args = parser.parse_args()
 
@@ -36,7 +36,7 @@ def process_gcn(payload, root):
     # Respond only to 'test' events.
     # VERY IMPORTANT! Replace with the following code
     # to respond to only real 'observation' events.
-    if args.test:
+    if args.test > 0:
         if root.attrib['role'] != 'test':
             return
     elif root.attrib['role'] != 'observation':
@@ -115,7 +115,7 @@ def main():
     # (killed or interrupted with control-C).
     global args
     args = parseargs()
-    if args.test:
+    if args.test > 1:
         import lxml.etree
         payload = open('MS181101ab-1-Preliminary.xml', 'rb').read()
         root = lxml.etree.fromstring(payload)
