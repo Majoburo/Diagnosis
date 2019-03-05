@@ -95,10 +95,9 @@ def write_catalog(params,catalog):
 
             # Area per pixel in steradians
             pixarea = hp.nside2pixarea(nside)
-            cat1 = pd.read_csv("./GLADE2.3HETz.csv", sep=',',usecols = [1,2,3],names=['RAJ2000','DEJ2000','z'],header=0,dtype=pd.np.float64)
+            cat1 = pd.read_csv("./GLADE2.3_HETd.csv", sep=' ',usecols = [1,2,3],names=['RAJ2000','DEJ2000','d'],header=0,dtype=pd.np.float64)
 
-            z = cat1['z']
-            r = cosmo.luminosity_distance(z).to('Mpc').value
+            z = cat1['d']
             theta = 0.5*np.pi - cat1['DEJ2000']*np.pi/180
             phi = cat1['RAJ2000']*np.pi/180
             ipix = hp.ang2pix(nside, theta, phi)
