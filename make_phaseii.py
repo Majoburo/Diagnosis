@@ -28,7 +28,7 @@ def make_phaseii(lstfile):
         f.write(' OBJECT\tRA\tDEC\tPIPRI\n')
         targets = np.loadtxt(lstfile,skiprows=1,dtype=np.str)
         for target in targets:
-            f.write('GW{}\t{}\t{}\t{}\n'.format(target[1]+'_'+target[2],target[1],target[2],target[0]))
+            f.write('GW{}\t{}\t{}\t{}\n'.format(target[1]+'_'+target[2],target[1],target[2],str(int(target[0])+1)))
 def main():
     make_phaseii(sys.argv[1])
 if __name__=='__main__':
