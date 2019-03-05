@@ -13,7 +13,7 @@
 `DIAGNOSIS` is a low latency HET observation planner for GW events. `DIAGNOSIS` is a modular code that will:
 - Continuosly listen to the [Gamma-ray Coordinates Network/Transient Astronomy Network (GCN/TAN)](https://gcn.gsfc.nasa.gov/) for alerts on gravitational wave events.
 - When triggered, if the event is likely to be a binary neutron star merger (BNS) or a black hole-neutron star merger (BHNS), `DIAGNOSIS` will download the asociated skymap, identify *if* and *when* the 90% confidence region falls within the HET pupil, and if so, inform the observers.
-- `DIAGNOSIS` will also query a galaxy catalog (for now 2MASS or GLADE) for galaxies within the observable 90% probability region, organize them by probability, and give their local sidereal times (LSTs) to start observations.
+- `DIAGNOSIS` will also query a galaxy catalog (for now 2MASS or GLADE) for galaxies within the observable 90% probability region, organize them by probability, give their local sidereal times (LSTs) to start observations and make a .tsl file for phase II in HET observations.
 - Finally, if VIRUS were to locate the source of the gravitational waves, `DIAGNOSIS` also provides a tool to report the coordinates back to the GCN/TAN.
 
 This is a beta tool.
@@ -24,7 +24,7 @@ This is a beta tool.
 
 `DIAGNOSIS` relies on a few third-party Python packages. These include:
 
-- Astropy
+- astropy
 - pygcn
 - healpy
 - numpy
@@ -60,15 +60,21 @@ python diagnose.py
 ```
 Details respect to the inputs can be seen in the arguments below.
 ```
-usage: diagnose.py [-h] [-cat CAT]
+usage: diagnose.py [-h] [-cat CAT] [-t] [-e] recipients
 
 Receive and parse GCN alerts, alert observers and create observing tools.
 
-optional arguments:
-  -h, --help  show this help message and exit
-  -cat CAT    Specify which catalog to use: 2MASS or GLADE
-```
+positional arguments:
+  recipients            Specify python file with list of recipients.
 
+optional arguments:
+  -h, --help            show this help message and exit
+  -cat CAT              Specify which catalog to use: 2MASS or GLADE
+  -t, --test            DEFAULT:FALSE. Run a test. Will not query gcn but use
+                        a file stored in the git repo.
+  -e, --send_notification
+                        DEFAULT:TRUE. Send emails and txt msjs to recipients.
+```
 If VIRUS were to locate the source of the gravitational waves, `DIAGNOSIS` also provides submit_gracedb.py, a tool to report the coordinates back to the GCN/TAN.
 
 In order to submit GCN alerts you will have to sign up to the GCN network. Please follow steps 1 and 2 in the [LIGO-Virgo EM Follow-Up Tutorial](https://dcc.ligo.org/public/0118/G1500442/010/ligo-virgo-emfollowup-tutorial.html) to do so.
@@ -109,6 +115,10 @@ List of all galaxies, within the 90% confidence region observable by HET, with a
 #### LSTs_{EVENT}.out
 
 List of at most 50 most probable observable galaxies with their corresponding LSTs.
+
+#### {EVENT}.tsl
+
+List of at most 50 most probable observable galaxies formated for phase II observations.
 
 #### MOLL_GWHET_{EVENT}.pdf
 ![MOLL_GWHET_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/MOLL_GWHET_MS181101ab.png)
