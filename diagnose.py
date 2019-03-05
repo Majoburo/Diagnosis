@@ -37,7 +37,7 @@ def process_gcn(payload, root):
     # Respond only to 'test' events.
     # VERY IMPORTANT! Replace with the following code
     # to respond to only real 'observation' events.
-    if args.test:
+    if args.test > 0:
         if root.attrib['role'] != 'test':
             return
     elif root.attrib['role'] != 'observation':
@@ -116,7 +116,7 @@ def main():
     # (killed or interrupted with control-C).
     global args
     args = parseargs()
-    if args.test:
+    if args.test > 1:
         import lxml.etree
         payload = open('MS181101ab-1-Preliminary.xml', 'rb').read()
         root = lxml.etree.fromstring(payload)

@@ -57,7 +57,7 @@ def get_LST(targf = 'galaxies2MASS.dat'):
     plt.register_cmap(name='viridis', cmap=plt.cm.viridis)
 
     rc('font',**{'family':'serif','serif':['Computer Modern Roman']})
-    rc('text', usetex=True)
+    #rc('text', usetex=True)
 
 
     def dolab1(fig):#:,thisplot):
