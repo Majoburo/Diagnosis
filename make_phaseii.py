@@ -4,7 +4,7 @@ import sys
 def make_phaseii(lstfile):
     common = {
                 'PROGRAM':'UT19-2-009',
-                'VIFU':'046',
+                'VIFU':'047',
                 'EXP':'120',
                 'NUMEXP':'3',
                 'EQUINOX':'2000.0',
