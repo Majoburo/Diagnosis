@@ -77,10 +77,10 @@ def process_gcn(payload, root):
         with open('./'+params['GraceID']+'.dat','a') as f:
             f.write('Distance = {} +/- {}\n'.format(header['DISTMEAN'], header['DISTSTD']))
         time = Time.now()
-
         prob, probfull, timetill90 = prob_observable(skymap, header, time, plot=plotting)
         if timetill90 ==-99:
             print("HET can't observe the source.")
+            return
         else:
             print("Source has a {:.1f}% chance of being observable now.".format(
                     int(round(100 * prob))))
@@ -89,26 +89,26 @@ def process_gcn(payload, root):
             print('{:.1f} hours till you can observe the 90 % prob region.'.format(
                     timetill90))
             if args.send_notification:
-                email_ip.SendText('GW ALERT! Time till 90% prob region is {:.1f} hours  '.format(timetill90),emails=[],recipients = args.recipients)
-        for catalog in args.cat:
-            get_galaxies.write_catalog(params,catalog)
-            get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(catalog,params['GraceID']))
-            make_phaseii.make_phaseii('LSTs_{}.out'.format(params['GraceID']))
-        with open('./'+params['GraceID']+'.dat','r') as f:
-            emailcontent = '### {} GW ALERT ###\n'.format(params['AlertType'])
-            emailcontent += 'Time until 90% probability region: {:.1f} hours\n\n'.format(timetill90)
-            emailcontent += f.read()
-            emailcontent += '\n\n'
-            emailcontent += "If you happen to find the location of the source, please submit coordinates to GraceDB using submit_gracedb.py. \n"
-            emailcontent += '######\n'
-            emailcontent += "Alert created with DIAGNOSIS, for more information on the software and data products, please refer to the wiki: \n"
-            emailcontent += "https://github.com/Majoburo/Diagnosis \n"
-        if args.send_notification:
-            email_ip.SendText(emailcontent,
-                    plotfiles = [x.format(params['GraceID']) for x in ['LSTs_{}.pdf','MOLL_GWHET_{}.pdf']],
-                    datafiles = [x.format(params['GraceID']) for x in ['LSTs_{}.out','{}.tsl']] ,
-                    numbers = [],
-                    recipients = args.recipients)
+                email_ip.SendText('TEST GW ALERT!: Time till 90% prob region is {:.1f} hours  '.format(timetill90),emails=[],recipients = args.recipients)
+            for catalog in args.cat:
+                get_galaxies.write_catalog(params,catalog)
+                get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(catalog,params['GraceID']))
+                make_phaseii.make_phaseii('LSTs_{}.out'.format(params['GraceID']))
+            with open('./'+params['GraceID']+'.dat','r') as f:
+                emailcontent = '### TEST {} GW ALERT ###\n'.format(params['AlertType'])
+                emailcontent += 'Time until 90% probability region: {:.1f} hours\n\n'.format(timetill90)
+                emailcontent += f.read()
+                emailcontent += '\n\n'
+                emailcontent += "If you happen to find the location of the source, please submit coordinates to GraceDB using submit_gracedb.py. \n"
+                emailcontent += '######\n'
+                emailcontent += "Alert created with DIAGNOSIS, for more information on the software and data products, please refer to the wiki: \n"
+                emailcontent += "https://github.com/Majoburo/Diagnosis \n"
+            if args.send_notification:
+                email_ip.SendText(emailcontent,
+                        plotfiles = [x.format(params['GraceID']) for x in ['LSTs_{}.pdf','MOLL_GWHET_{}.pdf']],
+                        datafiles = [x.format(params['GraceID']) for x in ['LSTs_{}.out','{}.tsl']] ,
+                        numbers = [],
+                        recipients = args.recipients)
     return
 
 def main():

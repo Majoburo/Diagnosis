@@ -7,8 +7,7 @@ from astropy.coordinates import Angle
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
-
+import sys
 def prob_observable(m, header, time, plot = False):
     """
     Determine the integrated probability contained in a gravitational-wave
@@ -104,17 +103,15 @@ def prob_observable(m, header, time, plot = False):
 
     timetill90 = 0
     #if the region doesn't intersect HET now
-    if not len(np.intersect1d(p90i,newpix))>0:
+    if len(np.intersect1d(p90i,newpix)) == 0:
         #if the region doesn't intersect HET at all
-        if not len(np.intersect1d(p90i,hetfullpix))>0:
+        if len(np.intersect1d(p90i,hetfullpix)) == 0:
             return 0 , 0 , -99
         #find minimum distance without the fear of any origin issues.
         #move het pupil to the origin and phi90 accordingly
-        phi90HET, HETphi0 = (phi90HET-LST*np.pi/180)%360, (HETphi-LST*np.pi/180)%360
+        phi90HET, HETphi0 = (phi90HET-LST*np.pi/180)%np.pi, (HETphi-LST*np.pi/180)%np.pi
         #if the region doesn't intersect HET then it can't cross the origin in phi (since het is there for all thetas)
         #unless we are on the extremely rare case in which the region is contained within the pupil
-        if np.min(phi90HET) < np.max(HETphi):
-            print('Region contained within the pupil. Will probably spew a negative number of hours.')
         iminth = np.argmin(HETtheta - theta90HET[np.argmin(phi90HET)])
         #at the right declination
         wsecs = (np.min(phi90HET) - np.max(HETphi0[iminth]))*12*3600/np.pi
@@ -162,4 +159,13 @@ def prob_observable(m, header, time, plot = False):
     # Done!
     return prob, probfull, timetill90
 
-
+def main():
+        skymap, header = hp.read_map(sys.argv[1],
+                                     h=True, verbose=False)
+        header = {'GraceID': 'TEST'}
+        time = astropy.time.Time.now()
+        prob, probfull, timetill90 = prob_observable(skymap, header, time, plot=True)
+        print(timetill90)
+        return timetill90
+if __name__=="__main__":
+    main()
