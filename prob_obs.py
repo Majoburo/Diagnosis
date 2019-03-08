@@ -41,6 +41,7 @@ def prob_observable(m, header, time, plot = False):
     t = astropy.time.Time(time,scale='utc',location=HET_loc)
     LST = t.sidereal_time('mean').deg
 
+
     # Alt/az reference frame at the observatory, in this time
     frame = astropy.coordinates.AltAz(obstime=t, location=observatory)
 
@@ -57,6 +58,32 @@ def prob_observable(m, header, time, plot = False):
     sun = astropy.coordinates.get_sun(time)
     # Where is the sun in the Texas sky, in this time?
     sun_altaz = sun.transform_to(frame)
+    
+    if plot:
+        #Return to LST now for plotting
+        HETphi = (hetpupil[:,1]+LST)*np.pi/180
+        HETtheta = (90-hetpupil[:,2])*np.pi/180
+        newpix = hp.ang2pix(nside, HETtheta, HETphi)
+
+        #SUN CIRCLE OF 18 DEGREES
+        radius = 18
+        phi = Angle(sun.ra).radian
+        theta = 0.5*np.pi-Angle(sun.dec).radian
+        radius = np.deg2rad(radius)
+        xyz = hp.ang2vec(theta, phi)
+        ipix_sun = hp.query_disc(nside, xyz, radius)
+
+        #Coloring the plot, order important here!
+        m[altaz.secz > 2.5] = 0.5
+        m[altaz.alt < 0] = 0.4
+        m[newpix] = 0.8
+        m[p90i] = 0.9
+        m[ipix_sun] = 1
+        hp.mollview(m, coord='C', cbar=False, max=1, title='HET NOW',)
+        hp.graticule(local=True)
+
+        plt.savefig('MOLL_GWHET_%s.pdf'%header['GraceID'])
+        #plt.show()
 
     delta_time = np.linspace(0, 24, 1000)*u.hour
     times24 = t + delta_time
@@ -91,15 +118,17 @@ def prob_observable(m, header, time, plot = False):
             p90i.append(i)
     p90i = np.array(p90i)
     theta90, phi90 = hp.pix2ang(nside, p90i)
-
     #find hetdex pixels
     HETtheta = (90-hetpupil[:,2])*np.pi/180
     HETphi = ((hetpupil[:,1]+LST)%360)*np.pi/180
     newpix = hp.ang2pix(nside, HETtheta, HETphi)
 
     #mask skymap pixels by hetdex accesible region
-    theta90HET = (theta90 > np.min(HETtheta))*(theta90 < np.max(HETtheta))
-    phi90HET = phi90[theta90HET]
+    theta90HETi = (theta90 > np.min(HETtheta))*(theta90 < np.max(HETtheta))
+    theta90HET = theta90[theta90HETi]
+    phi90HET = phi90[theta90HETi]
+    import pdb
+    pdb.set_trace()
 
     timetill90 = 0
     #if the region doesn't intersect HET now
@@ -109,7 +138,7 @@ def prob_observable(m, header, time, plot = False):
             return 0 , 0 , -99
         #find minimum distance without the fear of any origin issues.
         #move het pupil to the origin and phi90 accordingly
-        phi90HET, HETphi0 = (phi90HET-LST*np.pi/180)%np.pi, (HETphi-LST*np.pi/180)%np.pi
+        phi90HET, HETphi0 = (phi90HET-LST*np.pi/180)%(2*np.pi), (HETphi-LST*np.pi/180)%(2*np.pi)
         #if the region doesn't intersect HET then it can't cross the origin in phi (since het is there for all thetas)
         #unless we are on the extremely rare case in which the region is contained within the pupil
         iminth = np.argmin(HETtheta - theta90HET[np.argmin(phi90HET)])
@@ -129,32 +158,6 @@ def prob_observable(m, header, time, plot = False):
 
     prob = m[mask_arraynow > 0].sum()
     probfull = m[np.intersect1d(p90i,hetfullpix)].sum()
-
-    if plot:
-        #Return to LST now for plotting
-        LST = t.sidereal_time('mean').deg
-        HETphi = (hetpupil[:,1]+LST)*np.pi/180
-        newpix = hp.ang2pix(nside, HETtheta, HETphi)
-
-        #SUN CIRCLE OF 18 DEGREES
-        radius = 18
-        phi = Angle(sun.ra).radian
-        theta = 0.5*np.pi-Angle(sun.dec).radian
-        radius = np.deg2rad(radius)
-        xyz = hp.ang2vec(theta, phi)
-        ipix_sun = hp.query_disc(nside, xyz, radius)
-
-        #Coloring the plot, order important here!
-        m[altaz.secz > 2.5] = 0.5
-        m[altaz.alt < 0] = 0.4
-        m[newpix] = 0.8
-        m[p90i] = 0.9
-        m[ipix_sun] = 1
-        hp.mollview(m, coord='C', cbar=False, max=1, title='HET NOW',)
-        hp.graticule(local=True)
-
-        plt.savefig('MOLL_GWHET_%s.pdf'%header['GraceID'])
-        #plt.show()
 
     # Done!
     return prob, probfull, timetill90
