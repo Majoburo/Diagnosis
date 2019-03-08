@@ -40,6 +40,9 @@ def prob_observable(m, header, time, plot = False):
     # Find pixels of HET pupil in this time
     t = astropy.time.Time(time,scale='utc',location=HET_loc)
     LST = t.sidereal_time('mean').deg
+    HETphi = ((hetpupil[:,1]+LST)%360)*np.pi/180
+    HETtheta = (90-hetpupil[:,2])*np.pi/180
+    newpix = hp.ang2pix(nside, HETtheta, HETphi)
 
 
     # Alt/az reference frame at the observatory, in this time
@@ -58,19 +61,48 @@ def prob_observable(m, header, time, plot = False):
     sun = astropy.coordinates.get_sun(time)
     # Where is the sun in the Texas sky, in this time?
     sun_altaz = sun.transform_to(frame)
-    
+
+    delta_time = np.linspace(0, 24, 1000)*u.hour
+    times24 = t + delta_time
+    frames24 = astropy.coordinates.AltAz(obstime = times24, location=observatory)
+    sunaltazs24 = astropy.coordinates.get_sun(times24).transform_to(frames24)
+    timetilldark = 0*u.hour
+    timetillbright = 0*u.hour
+
+    nightstart = times24[sunaltazs24.alt<-18*u.deg][0]
+    nighttimemask = np.array((sunaltazs24.alt<-18*u.deg))*1
+    nightend = times24[(np.roll(nighttimemask, 1) - nighttimemask) != 0][0]
+
+    nightime = nightend - nightstart
+    nightime.format = 'sec'
+    #Moving to start of the night if in daytime
+    if (sun_altaz.alt > -18*u.deg):
+        timetilldark = (nightstart-t)
+        timetilldark.format = 'sec'
+        LST = nightstart.sidereal_time('mean').deg
+    else:
+        timetillbright = (nightend-t)
+        timetillbright.format = 'sec'
+
+    # How likely is it that the (true, unknown) location of the source
+    # is within the area that is visible, in this time and within 24 hours? 
+    # Demand that it falls in the HETDEX pupil, that the sun is at least 18 
+    # degrees below the horizon and that the airmass (secant of zenith angle 
+    # approximation) is at most 2.5.
+
+    msortedpix = np.flipud(np.argsort(m))
+    cumsum = np.cumsum(m[msortedpix])
+    cls = np.empty_like(m)
+    cls[msortedpix] = cumsum*100
+    p90i = np.where(cls <= 90)
     if plot:
-        #Return to LST now for plotting
-        HETphi = (hetpupil[:,1]+LST)*np.pi/180
-        HETtheta = (90-hetpupil[:,2])*np.pi/180
-        newpix = hp.ang2pix(nside, HETtheta, HETphi)
 
         #SUN CIRCLE OF 18 DEGREES
         radius = 18
-        phi = Angle(sun.ra).radian
-        theta = 0.5*np.pi-Angle(sun.dec).radian
+        phis = Angle(sun.ra).radian
+        thetas = 0.5*np.pi-Angle(sun.dec).radian
         radius = np.deg2rad(radius)
-        xyz = hp.ang2vec(theta, phi)
+        xyz = hp.ang2vec(thetas, phis)
         ipix_sun = hp.query_disc(nside, xyz, radius)
 
         #Coloring the plot, order important here!
@@ -84,51 +116,11 @@ def prob_observable(m, header, time, plot = False):
 
         plt.savefig('MOLL_GWHET_%s.pdf'%header['GraceID'])
         #plt.show()
-
-    delta_time = np.linspace(0, 24, 1000)*u.hour
-    times24 = t + delta_time
-    frames24 = astropy.coordinates.AltAz(obstime = times24, location=observatory)
-    sunaltazs24 = astropy.coordinates.get_sun(times24).transform_to(frames24)
-    timetilldark = 0*u.hour
-
-    nightstart = times24[sunaltazs24.alt<-18*u.deg][0]
-    nightend = times24[sunaltazs24.alt<-18*u.deg][-1]
-    nightime = nightend - nightstart
-    nightime.format = 'sec'
-    #Moving to start of the night if in daytime
-    if (sun_altaz.alt > -18*u.deg):
-        timetilldark = (nightstart-t)
-        timetilldark.format = 'sec'
-        LST = nightstart.sidereal_time('mean').deg
-
-
-    # How likely is it that the (true, unknown) location of the source
-    # is within the area that is visible, in this time and within 24 hours? 
-    # Demand that it falls in the HETDEX pupil, that the sun is at least 18 
-    # degrees below the horizon and that the airmass (secant of zenith angle 
-    # approximation) is at most 2.5.
-
-    msortedpix = np.flipud(np.argsort(m))
-    cumsum = np.cumsum(m[msortedpix])
-    cls = np.empty_like(m)
-    cls[msortedpix] = cumsum*100
-    p90i =[]
-    for i in range(len(m)):
-        if cls[i] <= 90:
-            p90i.append(i)
-    p90i = np.array(p90i)
     theta90, phi90 = hp.pix2ang(nside, p90i)
-    #find hetdex pixels
-    HETtheta = (90-hetpupil[:,2])*np.pi/180
-    HETphi = ((hetpupil[:,1]+LST)%360)*np.pi/180
-    newpix = hp.ang2pix(nside, HETtheta, HETphi)
-
     #mask skymap pixels by hetdex accesible region
     theta90HETi = (theta90 > np.min(HETtheta))*(theta90 < np.max(HETtheta))
     theta90HET = theta90[theta90HETi]
     phi90HET = phi90[theta90HETi]
-    import pdb
-    pdb.set_trace()
 
     timetill90 = 0
     #if the region doesn't intersect HET now
@@ -136,25 +128,26 @@ def prob_observable(m, header, time, plot = False):
         #if the region doesn't intersect HET at all
         if len(np.intersect1d(p90i,hetfullpix)) == 0:
             return 0 , 0 , -99
-        #find minimum distance without the fear of any origin issues.
-        #move het pupil to the origin and phi90 accordingly
-        phi90HET, HETphi0 = (phi90HET-LST*np.pi/180)%(2*np.pi), (HETphi-LST*np.pi/180)%(2*np.pi)
-        #if the region doesn't intersect HET then it can't cross the origin in phi (since het is there for all thetas)
-        #unless we are on the extremely rare case in which the region is contained within the pupil
-        iminth = np.argmin(HETtheta - theta90HET[np.argmin(phi90HET)])
-        #at the right declination
-        wsecs = (np.min(phi90HET) - np.max(HETphi0[iminth]))*12*3600/np.pi
-        if wsecs > nightime.value:
-            return 0 , 0 , -99
+        import pdb
+        pdb.set_trace()
+        hetedge = np.loadtxt('hetedge.dat')
+        hetedgef = lambda x: np.interp(x,hetedge[:,1],hetedge[:,0])
+        y = theta90HET*180/np.pi #DEC SKYMAP
+        x = (phi90HET*180/np.pi-LST)%360 #RA SKYMAP ZEROING HET PUPIL
+        wsecs = np.min(x - hetedgef(y))*3600*12/180
+        if timetilldark == 0:
+            if wsecs > timetillbright.value:
+                return 0 , 0 , -99
         else:
-            timetill90 = (wsecs+timetilldark.value)/3600
+            if wsecs > nightime:
+                return 0 , 0 , -99
+        timetill90 = (wsecs+timetilldark.value)/3600
     elif timetilldark.value > 0:
         timetill90 = timetilldark.value/3600
 
     mask_arraynow = np.zeros(len(m), dtype=int)
     mask_arraynow[newpix] = 1
     mask_arraynow *= (altaz.secz <= 2.5)&(sun_altaz.alt <= -18*u.deg)
-
 
     prob = m[mask_arraynow > 0].sum()
     probfull = m[np.intersect1d(p90i,hetfullpix)].sum()
