@@ -129,10 +129,15 @@ def prob_observable(m, header, time, plot = False):
         if len(np.intersect1d(p90i,hetfullpix)) == 0:
             return 0 , 0 , -99
         hetedge = np.loadtxt('hetedge.dat')
-        hetedgef = lambda x: np.interp(x,hetedge[:,1],hetedge[:,0])
+        hetedgef = lambda x: np.interp(x,hetedge[:,0],hetedge[:,1])
         y = theta90HET*180/np.pi #DEC SKYMAP
         x = (phi90HET*180/np.pi-LST)%360 #RA SKYMAP ZEROING HET PUPIL
         wsecs = np.min(x - hetedgef(y))*3600*12/180
+        if wsecs < 0:
+            #it's inside the pupil...
+            hetedgef2 = lambda x: np.interp(x,hetedge[:,0],hetedge[:,2])
+            wsecs = np.min(x - hetedgef2(y))*3600*12/180
+
         if timetilldark == 0:
             if wsecs > timetillbright.value:
                 return 0 , 0 , -99
