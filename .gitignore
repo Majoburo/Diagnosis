@@ -3,7 +3,8 @@ MOLL_*.pdf
 LST*.out
 LST_*.pdf
 galaxies*.dat
-
+MS*
+*pdf
 #private info
 private.py
 

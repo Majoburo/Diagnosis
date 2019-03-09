@@ -49,7 +49,7 @@ def process_gcn(payload, root):
     params = {elem.attrib['name']:
               elem.attrib['value']
               for elem in root.iterfind('.//Param')}
-
+    params['role'] = root.attrib['role']
     # Respond only to 'CBC' events that have a change of EMBRIGHT.
     if params['Group'] != 'CBC' or (float(params['BNS']) + float(params['NSBH']) < 0.5):
         return
