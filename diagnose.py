@@ -89,13 +89,13 @@ def process_gcn(payload, root):
             print('{:.1f} hours till you can observe the 90 % prob region.'.format(
                     timetill90))
             if args.send_notification:
-                email_ip.SendText('TEST GW ALERT!: Time till 90% prob region is {:.1f} hours  '.format(timetill90),emails=[],recipients = args.recipients)
+                email_ip.SendText('GW ALERT!: Time till 90% prob region is {:.1f} hours  '.format(timetill90),emails=[],recipients = args.recipients)
             for catalog in args.cat:
                 get_galaxies.write_catalog(params,catalog)
                 get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(catalog,params['GraceID']))
                 make_phaseii.make_phaseii('LSTs_{}.out'.format(params['GraceID']))
             with open('./'+params['GraceID']+'.dat','r') as f:
-                emailcontent = '### TEST {} GW ALERT ###\n'.format(params['AlertType'])
+                emailcontent = '### {} GW ALERT ###\n'.format(params['AlertType'])
                 emailcontent += 'Time until 90% probability region: {:.1f} hours\n\n'.format(timetill90)
                 emailcontent += f.read()
                 emailcontent += '\n\n'
