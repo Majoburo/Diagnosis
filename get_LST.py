@@ -144,8 +144,8 @@ def get_LST(targf = 'galaxies2MASS.dat'):
     #read in target ra/dec, exptime, nvis, moon
     targs = ascii.read(targf)
     #Only show 50 most probable galaxies
-    if len(targs)>50:
-        targs = targs[:50]
+    if len(targs)>20:
+        targs = targs[:20]
     #parse. IDs first, assume
     targ_id = targs.columns[0].data
     targ_ra = targs.columns[1].data
@@ -345,6 +345,7 @@ def get_LST(targf = 'galaxies2MASS.dat'):
     with open('LSTs_%s.out'%GraceID,'w') as f:
         f.write("ID RA DEC LST1_start LST1_stop LST2_start LST2_stop Nvis Exptime LogProb \n")
         for ra,dec,t1,t2,t3,t4,i,nv,texp,tprob in zip(targ_ra, targ_dec, LST1_start, LST1_stop, LST2_start, LST2_stop, targ_id, targ_nvis,targ_exptime, targ_logprob):
+            i = i+1 #to match the tsl convention
             #if valid, add first trajectory for as many visits as needed
             if obs_plot:
                 if ((t1>-30)&(t2>-30)&(t3>-30)&(t4>-30)):

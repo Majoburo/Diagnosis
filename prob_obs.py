@@ -19,7 +19,6 @@ def prob_observable(m, header, time, plot = False):
     # Determine resolution of sky map
     npix = len(m)
     nside = hp.npix2nside(npix)
-
     # Get time now and Local Sidereal Time
     # time = astropy.time.Time.now()
     # Or at the time of the gravitational-wave event...
@@ -125,7 +124,6 @@ def prob_observable(m, header, time, plot = False):
     theta90HETi = (theta90 > np.min(HETtheta))*(theta90 < np.max(HETtheta))
     theta90HET = theta90[theta90HETi]
     phi90HET = phi90[theta90HETi]
-
     timetill90 = 0
     #if the region doesn't intersect HET now
     if len(np.intersect1d(p90i,newpix)) == 0:
@@ -160,7 +158,6 @@ def prob_observable(m, header, time, plot = False):
 
     prob = m[mask_arraynow > 0].sum()
     probfull = m[np.intersect1d(p90i,hetfullpix)].sum()
-
     # Done!
     return prob, probfull, timetill90
 
