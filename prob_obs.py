@@ -53,7 +53,6 @@ def prob_observable(m, header, time, plot = False):
     # Convert to RA, Dec.
     radecs = astropy.coordinates.SkyCoord(
         ra=phi*u.rad, dec=(0.5*np.pi - theta)*u.rad)
-
     # Transform grid to alt/az coordinates at observatory, in this time
     altaz = radecs.transform_to(frame)
 
@@ -71,8 +70,10 @@ def prob_observable(m, header, time, plot = False):
 
     nightstart = times24[sunaltazs24.alt<-18*u.deg][0]
     nighttimemask = np.array((sunaltazs24.alt<-18*u.deg))*1
-    nightend = times24[(np.roll(nighttimemask, 1) - nighttimemask) != 0][0]
-
+    if (sun_altaz.alt > -18*u.deg):
+        nightend = times24[(np.roll(nighttimemask, 1) - nighttimemask) != 0][1]
+    else:
+        nightend = times24[(np.roll(nighttimemask, 1) - nighttimemask) != 0][0]
     nightime = nightend - nightstart
     nightime.format = 'sec'
     #Moving to start of the night if in daytime
@@ -80,6 +81,9 @@ def prob_observable(m, header, time, plot = False):
         timetilldark = (nightstart-t)
         timetilldark.format = 'sec'
         LST = nightstart.sidereal_time('mean').deg
+        HETphi = ((hetpupil[:,1]+LST)%360)*np.pi/180
+        newpixp = newpix
+        newpix = hp.ang2pix(nside, HETtheta, HETphi)
     else:
         timetillbright = (nightend-t)
         timetillbright.format = 'sec'
@@ -108,7 +112,7 @@ def prob_observable(m, header, time, plot = False):
         #Coloring the plot, order important here!
         m[altaz.secz > 2.5] = 0.5
         m[altaz.alt < 0] = 0.4
-        m[newpix] = 0.8
+        m[newpixp] = 0.8
         m[p90i] = 0.9
         m[ipix_sun] = 1
         hp.mollview(m, coord='C', cbar=False, max=1, title='HET NOW',)
@@ -136,20 +140,22 @@ def prob_observable(m, header, time, plot = False):
         if wsecs < 0:
             #it's inside the pupil...
             hetedgef2 = lambda x: np.interp(x,hetedge[:,0],hetedge[:,2])
-            wsecs = np.min(x - hetedgef2(y))*3600*12/180
+            y = (hetedgef2(y)+180)%360 -180
+            x = (x+180)%360-180
+            wsecs = np.min(x - y)*3600*12/180
 
         if timetilldark == 0:
             if wsecs > timetillbright.value:
                 return 0 , 0 , -99
         else:
-            if wsecs > nightime:
+            if wsecs > nightime.value:
                 return 0 , 0 , -99
         timetill90 = (wsecs+timetilldark.value)/3600
     elif timetilldark.value > 0:
         timetill90 = timetilldark.value/3600
 
     mask_arraynow = np.zeros(len(m), dtype=int)
-    mask_arraynow[newpix] = 1
+    mask_arraynow[newpixp] = 1
     mask_arraynow *= (altaz.secz <= 2.5)&(sun_altaz.alt <= -18*u.deg)
 
     prob = m[mask_arraynow > 0].sum()
