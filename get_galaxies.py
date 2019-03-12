@@ -32,7 +32,7 @@ def parseargs():
 
     parser = argparse.ArgumentParser(description='FIND GALAXIES TO OBSERVE IN TWO CATALOGS')
     parser.add_argument('--http', dest='fits', default='https://dcc.ligo.org/public/0146/G1701985/001/LALInference_v2.fits.gz', action=GetLoc, help='HTTPS link to LIGO event localization. It will download the file if not cached.')
-    parser.add_argument('-cat', dest='cat', default='2MASS', action=GetLoc, help='Specify which catalog to use: 2MASS or GLADE')
+    parser.add_argument('-cat', dest='cat', default='GLADE', help='Specify which catalog to use: 2MASS or GLADE')
     args = parser.parse_args()
 
     return args
@@ -121,9 +121,11 @@ def write_catalog(params,catalog):
 def main():
 
     args = parseargs()
-    params = {'skymap_fits':args.fits,'GraceID':args.fits.header['OBJECT']}
+    _,header = hp.read_map(args.fits, field=range(4), h=True)
+    header = dict(header)
+    params = {'skymap_fits':args.fits,'GraceID':header['OBJECT']}
     if args.cat == 'GLADE' or args.cat == '2MASS':
-        write_catalog(params,catalog)
+        write_catalog(params,args.cat)
     else:
         print('Must specify either GLADE or 2MASS as catalogs.')
 

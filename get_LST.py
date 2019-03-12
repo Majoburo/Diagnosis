@@ -13,7 +13,7 @@ from astropy.io import  ascii
 import astropy.units as u
 from matplotlib.ticker import MultipleLocator
 from matplotlib import rc
-
+import sys
 
 HET_track = 'HET_opt_tracking.txt'
 obs_plot = True
@@ -407,7 +407,7 @@ def get_LST(targf = 'galaxies2MASS.dat'):
         fig.savefig(graout, bbox_inches='tight')
 
 def main():
-    get_LST(targf = 'galaxies2MASS.dat')
+    get_LST(targf = sys.argv[1])
 
 if __name__== "__main__":
     main()
