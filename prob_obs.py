@@ -130,6 +130,8 @@ def prob_observable(m, header, time, plot = False):
         #if the region doesn't intersect HET at all
         if len(np.intersect1d(p90i,hetfullpix)) == 0:
             return 0 , 0 , -99
+        import pdb
+        pdb.set_trace()
         hetedge = np.loadtxt('hetedge.dat')
         hetedgef = lambda x: np.interp(x,hetedge[:,0],hetedge[:,1])
         y = theta90HET*180/np.pi #DEC SKYMAP

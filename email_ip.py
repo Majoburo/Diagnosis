@@ -7,7 +7,7 @@ from email.mime.text import MIMEText
 import os.path
 import datetime
 import importlib
-carriers = {'gphi':'@msg.fi.google.com','verizon':'@vtext.com','tmobile': '@tmomail.net', 'att': '@txt.att.net'}
+carriers = {'consumer':'@mailmymobile.net','gphi':'@msg.fi.google.com','verizon':'@vtext.com','tmobile': '@tmomail.net', 'att': '@txt.att.net'}
 def SendText(content,emailcontent=None,plotfiles=[],datafiles=[],numbers=None,emails=None,recipients='recipients.py'):
     try:
         if not os.path.exists(recipients):
