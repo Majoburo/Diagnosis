@@ -40,10 +40,11 @@ def parseargs():
 def write_catalog(params,catalog):
         fits = params['skymap_fits']
         event = params['GraceID']
+        prob = params['skymap_array']
         if catalog == '2MASS':
             # Reading in the skymap prob and header
             locinfo, header = hp.read_map(fits, field=range(4), h=True)
-            prob, distmu, distsigma, distnorm = locinfo
+            probb, distmu, distsigma, distnorm = locinfo
             #Getting healpix resolution and pixel area in deg^2
             npix = len(prob)
             nside = hp.npix2nside(npix)
@@ -88,7 +89,7 @@ def write_catalog(params,catalog):
 
             # Reading in the skymap prob and header
             locinfo, header = hp.read_map(fits, field=range(4), h=True)
-            prob, distmu, distsigma, distnorm = locinfo
+            probb, distmu, distsigma, distnorm = locinfo
             #Getting healpix resolution and pixel area in deg^2
             npix = len(prob)
             nside = hp.npix2nside(npix)

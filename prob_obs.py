@@ -129,9 +129,7 @@ def prob_observable(m, header, time, plot = False):
     if len(np.intersect1d(p90i,newpix)) == 0:
         #if the region doesn't intersect HET at all
         if len(np.intersect1d(p90i,hetfullpix)) == 0:
-            return 0 , 0 , -99
-        import pdb
-        pdb.set_trace()
+            return 0 , 0 , -99, 0
         hetedge = np.loadtxt('hetedge.dat')
         hetedgef = lambda x: np.interp(x,hetedge[:,0],hetedge[:,1])
         y = theta90HET*180/np.pi #DEC SKYMAP
@@ -146,10 +144,10 @@ def prob_observable(m, header, time, plot = False):
 
         if timetilldark == 0:
             if wsecs > timetillbright.value:
-                return 0 , 0 , -99
+                return 0 , 0 , -99, 0
         else:
             if wsecs > nightime.value:
-                return 0 , 0 , -99
+                return 0 , 0 , -99, 0
         timetill90 = (wsecs+timetilldark.value)/3600
     elif timetilldark.value > 0:
         timetill90 = timetilldark.value/3600
@@ -160,15 +158,19 @@ def prob_observable(m, header, time, plot = False):
 
     prob = m[mask_arraynow > 0].sum()
     probfull = m[np.intersect1d(p90i,hetfullpix)].sum()
+    m[np.setdiff1d(np.arange(len(m)),np.intersect1d(p90i,hetfullpix),assume_unique=True)]=m.min()
+    #hp.orthview(m)
+    #plt.show()
+    #plt.savefig('MOLL_GWHET_%s.pdf'%header['GraceID'])
     # Done!
-    return prob, probfull, timetill90
+    return prob, probfull, timetill90, m
 
 def main():
         skymap, header = hp.read_map(sys.argv[1],
                                      h=True, verbose=False)
         header = {'GraceID': 'TEST'}
         time = astropy.time.Time.now()
-        prob, probfull, timetill90 = prob_observable(skymap, header, time, plot=True)
+        prob, probfull, timetill90, m = prob_observable(skymap, header, time, plot=False)
         print(timetill90)
         return timetill90
 if __name__=="__main__":
