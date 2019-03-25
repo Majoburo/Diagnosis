@@ -62,8 +62,10 @@ def process_gcn(payload, root):
 
     https, skymapfits = os.path.split(params['skymap_fits'])
     skymap_local,_ = urllib.request.urlretrieve(params['skymap_fits'],'./'+params['GraceID']+'.fits')
+    #skymap_local = skymapfits
     #skymap_local,_ = urllib.urlretrieve(params['skymap_fits'],'./'+params['GraceID']+'.fits')
     params['skymap_fits'] = skymap_local
+    print(params['skymap_fits'])
     print("Skymap downloaded.")
 
     if 'skymap_fits' in params:
@@ -77,7 +79,8 @@ def process_gcn(payload, root):
         with open('./'+params['GraceID']+'.dat','a') as f:
             f.write('Distance = {} +/- {}\n'.format(header['DISTMEAN'], header['DISTSTD']))
         time = Time.now()
-        prob, probfull, timetill90 = prob_observable(skymap, header, time, plot=plotting)
+        prob, probfull, timetill90, m = prob_observable(skymap, header, time, plot=plotting)
+        params['skymap_array'] = m
         if timetill90 ==-99:
             print("HET can't observe the source.")
             return
