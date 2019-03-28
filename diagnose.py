@@ -8,7 +8,7 @@ import os, urllib
 import argparse
 import urllib.request
 import lxml
-
+import numpy as np
 plotting = True
 params = {}
 args = 0
@@ -18,6 +18,7 @@ def parseargs():
     parser = argparse.ArgumentParser(description='Receive and parse GCN alerts, alert observers and create observing tools.')
     parser.add_argument('recipients', help = 'Specify python file with list of recipients.')
     parser.add_argument('-cat', dest='cat', default = 'GLADE', help='Specify which catalog to use: 2MASS or GLADE')
+    parser.add_argument('-fits', dest='fits', default = None, help='If given a skymap fits, override everything and use this fits file.')
     parser.add_argument('-t','--test', dest='test', action='count', default =0, help='DEFAULT:0. Run a test. With -tt will not query gcn but use a file stored in the git repo. With -t will query gcn for test alerts.')
     parser.add_argument('-e','--send_notification', dest = 'send_notification', action='store_false', help='DEFAULT:TRUE. Send emails and txt msjs to recipients.')
     args = parser.parse_args()
@@ -114,11 +115,26 @@ def process_gcn(payload, root):
                         recipients = args.recipients)
     return
 
+
 def main():
     # Listen for GCNs until the program is interrupted
     # (killed or interrupted with control-C).
     global args
     args = parseargs()
+    if args.fits:
+        skymap, header = hp.read_map(args.fits, h=True, verbose=False)
+        time = Time.now()
+        header = dict(header)
+        header['GraceID'] = header['OBJECT']
+        params = {'skymap_fits':args.fits,'skymap_array':np.copy(skymap),'GraceID':header['OBJECT']}
+        #prob, probfull, timetill90, m = prob_observable(skymap, header, time, plot=plotting)
+        _, _, _, m = prob_observable(skymap, header, time, plot=plotting)
+        params['skymap_array'] = m
+        get_galaxies.write_catalog(params,args.cat[0])
+        get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(args.cat[0],params['GraceID']))
+        make_phaseii.make_phaseii('LSTs_{}.out'.format(params['GraceID']))
+        return
+
     if args.test > 1:
         import lxml.etree
         payload = open('MS181101ab-1-Preliminary.xml', 'rb').read()
@@ -127,4 +143,4 @@ def main():
     else:
         gcn.listen(handler=process_gcn, port=8099)
 if __name__== "__main__":
-    main()
+   main()

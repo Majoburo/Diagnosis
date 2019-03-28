@@ -17,6 +17,7 @@ def prob_observable(m, header, time, plot = False):
     """
 
     # Determine resolution of sky map
+    mplot = np.copy(m)
     npix = len(m)
     nside = hp.npix2nside(npix)
     # Get time now and Local Sidereal Time
@@ -42,6 +43,7 @@ def prob_observable(m, header, time, plot = False):
     HETphi = ((hetpupil[:,1]+LST)%360)*np.pi/180
     HETtheta = (90-hetpupil[:,2])*np.pi/180
     newpix = hp.ang2pix(nside, HETtheta, HETphi)
+    newpixp = newpix
 
 
     # Alt/az reference frame at the observatory, in this time
@@ -81,7 +83,6 @@ def prob_observable(m, header, time, plot = False):
         timetilldark.format = 'sec'
         LST = nightstart.sidereal_time('mean').deg
         HETphi = ((hetpupil[:,1]+LST)%360)*np.pi/180
-        newpixp = newpix
         newpix = hp.ang2pix(nside, HETtheta, HETphi)
     else:
         timetillbright = (nightend-t)
@@ -109,12 +110,12 @@ def prob_observable(m, header, time, plot = False):
         ipix_sun = hp.query_disc(nside, xyz, radius)
 
         #Coloring the plot, order important here!
-        m[altaz.secz > 2.5] = 0.5
-        m[altaz.alt < 0] = 0.4
-        m[newpixp] = 0.8
-        m[p90i] = 0.9
-        m[ipix_sun] = 1
-        hp.mollview(m, coord='C', cbar=False, max=1, title='HET NOW',)
+        mplot[altaz.secz > 2.5] = 0.5
+        mplot[altaz.alt < 0] = 0.4
+        mplot[newpixp] = 0.8
+        mplot[p90i] = 0.9
+        mplot[ipix_sun] = 1
+        hp.mollview(mplot, coord='C', cbar=False, max=1, title='HET NOW',)
         hp.graticule(local=True)
 
         plt.savefig('MOLL_GWHET_%s.pdf'%header['GraceID'])
@@ -170,7 +171,7 @@ def main():
                                      h=True, verbose=False)
         header = {'GraceID': 'TEST'}
         time = astropy.time.Time.now()
-        prob, probfull, timetill90, m = prob_observable(skymap, header, time, plot=False)
+        prob, probfull, timetill90, m = prob_observable(skymap, header, time, plot=True)
         print(timetill90)
         return timetill90
 if __name__=="__main__":

@@ -17,6 +17,7 @@ from astropy.cosmology import WMAP9 as cosmo
 import astropy.units as u
 import astropy.constants as c
 import pandas as pd
+from ligo.skymap.distance import conditional_pdf
 
 def parseargs():
 
@@ -40,13 +41,13 @@ def parseargs():
 def write_catalog(params,catalog):
         fits = params['skymap_fits']
         event = params['GraceID']
-        prob = params['skymap_array']
+        probability = params['skymap_array']
         if catalog == '2MASS':
             # Reading in the skymap prob and header
             locinfo, header = hp.read_map(fits, field=range(4), h=True)
             probb, distmu, distsigma, distnorm = locinfo
             #Getting healpix resolution and pixel area in deg^2
-            npix = len(prob)
+            npix = len(probability)
             nside = hp.npix2nside(npix)
 
             # Area per pixel in steradians
@@ -66,8 +67,8 @@ def write_catalog(params,catalog):
             theta = 0.5*np.pi - cat1['DEJ2000'].to('rad').value
             phi = cat1['RAJ2000'].to('rad').value
             ipix = hp.ang2pix(nside, theta, phi)
-            logdp_dV = np.log(prob[ipix]) + np.log(distnorm[ipix])+np.log( norm(distmu[ipix], distsigma[ipix]).pdf(r))-np.log(pixarea)
-
+            #logdp_dV = np.log(probability[ipix]) + np.log(distnorm[ipix])+np.log( norm(distmu[ipix], distsigma[ipix]).pdf(r))-np.log(pixarea)
+            logdp_dV = np.log(probability[ipix]) + np.log(conditional_pdf(r,distmu[ipix],distsigma[ipix],distnorm[ipix]).tolist()) - np.log(pixarea)
             top99i = logdp_dV-np.max(logdp_dV) > np.log(1/100)
             #Now working only with event with probability 99% lower than the most probable
             logdp_dV = logdp_dV[top99i]
@@ -85,31 +86,50 @@ def write_catalog(params,catalog):
             cattop.add_columns([index,logprob,exptime,Nvis])
             ascii.write(cattop['index','RAJ2000','DEJ2000','exptime','Nvis','LogProb'], 'galaxies2MASS_%s.dat'%event, overwrite=True)
             return cattop,logptop
+
         if catalog == 'GLADE':
 
             # Reading in the skymap prob and header
             locinfo, header = hp.read_map(fits, field=range(4), h=True)
             probb, distmu, distsigma, distnorm = locinfo
             #Getting healpix resolution and pixel area in deg^2
-            npix = len(prob)
+            npix = len(probability)
             nside = hp.npix2nside(npix)
-
             # Area per pixel in steradians
             pixarea = hp.nside2pixarea(nside)
-            cat1 = pd.read_csv("./GLADE2.3HETd.csv", sep=',',usecols = [1,2,3],names=['RAJ2000','DEJ2000','d'],header=0,dtype=pd.np.float64)
-            r = cat1['d']
+            cat1 = pd.read_csv("./GLADE2.3HETd.csv", sep=',',usecols = [1,2,3,4],names=['RAJ2000','DEJ2000','d','B_Abs'],header=0,dtype=pd.np.float64)
+            dist = cat1['d']
             theta = 0.5*np.pi - cat1['DEJ2000']*np.pi/180
             phi = cat1['RAJ2000']*np.pi/180
+            
+            #1.2*10**10*0.7**-2
+            #completeness = 0.5
+            #alpha = -1.07
+            #MK_star = -23.55
+            #MK_max = MK_star + 2.5*np.log10(gammaincinv(alpha + 2, completeness))
+            #z = (u.Quantity(cat1['cz'])/c.c).to(u.dimensionless_unscaled)
+            #MK = cat1['Ktmag']-cosmo.distmod(z)
+            
+            
             ipix = hp.ang2pix(nside, theta, phi)
-            logdp_dV = np.log(prob[ipix]) + np.log(distnorm[ipix])+np.log( norm(distmu[ipix], distsigma[ipix]).pdf(r))-np.log(pixarea)
+            #print(dir(conditional_pdf(dist,distmu[ipix],distsigma[ipix],distnorm[ipix])))
+            #print(np.log(distnorm[ipix]) + np.log( norm(distmu[ipix], distsigma[ipix]).pdf(dist)))
+            #logdp_dV = np.log(probability[ipix]) + np.log(distnorm[ipix]) + np.log( norm(distmu[ipix], distsigma[ipix]).pdf(dist)) - np.log(pixarea)
+            logdp_dV = np.log(probability[ipix]) + np.log(conditional_pdf(dist,distmu[ipix],distsigma[ipix],distnorm[ipix]).tolist()) - np.log(pixarea)
+            s_lum = 10**(-0.4*cat1['B_Abs'])
+            s_lum = s_lum/s_lum.sum()
+            #s_det =
+            logdp_dV = np.log(s_lum)+logdp_dV
+            
 
             top99i = logdp_dV-np.max(logdp_dV) > np.log(1/100)
             #Now working only with event with probability 99% lower than the most probable
             logdp_dV = logdp_dV[top99i]
+            #Shoudl change naming here for the probability now that including slum
             cattop = cat1[top99i]
             isort = np.argsort(logdp_dV)[::-1]
             cattop = Table.from_pandas(cattop.iloc[isort])
-            logptop = logdp_dV[isort]
+            logptop = logdp_dV.iloc[isort]
             index = Column(name='index',data=np.arange(len(cattop)))
             logprob = Column(name='LogProb',data=logptop)
             exptime = Column(name='exptime',data=60*20*np.ones(len(cattop)))
@@ -122,9 +142,9 @@ def write_catalog(params,catalog):
 def main():
 
     args = parseargs()
-    _,header = hp.read_map(args.fits, field=range(4), h=True)
+    prob, header = hp.read_map(args.fits, h=True)
     header = dict(header)
-    params = {'skymap_fits':args.fits,'GraceID':header['OBJECT']}
+    params = {'skymap_fits':args.fits,'skymap_array':prob,'GraceID':header['OBJECT']}
     if args.cat == 'GLADE' or args.cat == '2MASS':
         write_catalog(params,args.cat)
     else:
