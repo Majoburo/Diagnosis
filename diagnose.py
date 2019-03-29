@@ -64,6 +64,10 @@ def process_gcn(payload, root):
         for key in interesting_parameters:
             print(key, '=', params[key])
             f.write('%s = %s\n'%(key,params[key]))
+    # Print some values from the FITS header.
+    print('Distance =', header['DISTMEAN'], '+/-', header['DISTSTD'])
+    with open('./'+params['GraceID']+'.dat','a') as f:
+        f.write('Distance = {} +/- {}\n'.format(header['DISTMEAN'], header['DISTSTD']))
 
 
     https, skymapfits = os.path.split(params['skymap_fits'])
@@ -75,15 +79,17 @@ def process_gcn(payload, root):
     print("Skymap downloaded.")
 
     if 'skymap_fits' in params:
+        process_fits()
+    return
+def process_fits():
+        global params
         # Read the HEALPix sky map and the FITS header.
         skymap, header = hp.read_map(params['skymap_fits'],
                                      h=True, verbose=False)
         header = dict(header)
         header['GraceID'] = params['GraceID']
-        # Print some values from the FITS header.
-        print('Distance =', header['DISTMEAN'], '+/-', header['DISTSTD'])
-        with open('./'+params['GraceID']+'.dat','a') as f:
-            f.write('Distance = {} +/- {}\n'.format(header['DISTMEAN'], header['DISTSTD']))
+        with open('./'+params['GraceID']+'.dat','w') as f:
+            f.write('THIS ALERT DOES NOT CONTAIN RELEVANT PARAMETER INFORMATION SINCE IT WAS CREATED FROM A FITS FILE (NOT A GCN NOTICE).')
         time = Time.now()
         prob, probfull, timetill90, m = prob_observable(skymap, header, time, plot=plotting)
         params['skymap_array'] = m
@@ -98,53 +104,53 @@ def process_gcn(payload, root):
             print('{:.1f} hours till you can observe the 90 % prob region.'.format(
                     timetill90))
             if args.send_notification:
-                msjstring=''
-                if args.test > 0:
-                    msjstring = 'TEST '
-                msjstring += 'GW ALERT!: Time till 90% prob region is {:.1f} hours  '.format(timetill90)
-                email_ip.SendText(msjstring, emails=[], recipients = args.recipients)
+                send_notifications(params,timetill90,text=True,email=False)
             for catalog in args.cat:
                 get_galaxies.write_catalog(params,catalog)
                 get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(catalog,params['GraceID']))
                 make_phaseii.make_phaseii('LSTs_{}.out'.format(params['GraceID']))
-            with open('./'+params['GraceID']+'.dat','r') as f:
-                emailcontent = '### {} GW ALERT ###\n'.format(params['AlertType'])
-                if args.test > 0:
-                    emailcontent += 'THIS IS A TEST'
-                emailcontent += 'Time until 90% probability region: {:.1f} hours\n\n'.format(timetill90)
-                emailcontent += 'CALL MAJO: +15125763501'
-                emailcontent += f.read()
-                emailcontent += '\n\n'
-                emailcontent += "If you happen to find the location of the source, please submit coordinates to GraceDB using submit_gracedb.py. \n"
-                emailcontent += '######\n'
-                emailcontent += "Alert created with DIAGNOSIS, for more information on the software and data products, please refer to the wiki: \n"
-                emailcontent += "https://github.com/Majoburo/Diagnosis \n"
             if args.send_notification:
-                email_ip.SendText(emailcontent,
-                        plotfiles = [x.format(params['GraceID']) for x in ['LSTs_{}.pdf','MOLL_GWHET_{}.pdf']],
-                        datafiles = [x.format(params['GraceID']) for x in ['LSTs_{}.out','{}.tsl']] ,
-                        numbers = [],
-                        recipients = args.recipients)
-    return
+                send_notifications(params,timetill90)
 
+def send_notifications(params,timetill90,text=False,email=True):
+    if text:
+        msjstring=''
+        if args.test > 0:
+            msjstring = 'TEST '
+        msjstring += 'GW ALERT!: Time till 90% prob region is {:.1f} hours  '.format(timetill90)
+        email_ip.SendText(msjstring, emails=[], recipients = args.recipients)
+    if email:
+        with open('./'+params['GraceID']+'.dat','r') as f:
+            emailcontent = '### {} GW ALERT ###\n'.format(params['AlertType'])
+            if args.test > 0:
+                emailcontent += 'THIS IS A TEST \n'
+            emailcontent += 'Time until 90% probability region: {:.1f} hours\n\n'.format(timetill90)
+            emailcontent += 'CALL MAJO: +15125763501 \n'
+            emailcontent += f.read()
+            emailcontent += '\n\n'
+            emailcontent += "If you happen to find the location of the source, please submit coordinates to GraceDB using submit_gracedb.py. \n"
+            emailcontent += '######\n'
+            emailcontent += "Alert created with DIAGNOSIS, for more information on the software and data products, please refer to the wiki: \n"
+            emailcontent += "https://github.com/Majoburo/Diagnosis \n"
+            email_ip.SendText(emailcontent,
+                    plotfiles = [x.format(params['GraceID']) for x in ['LSTs_{}.pdf','MOLL_GWHET_{}.pdf']],
+                    datafiles = [x.format(params['GraceID']) for x in ['LSTs_{}.out','{}.tsl']] ,
+                    numbers = [],
+                    recipients = args.recipients)
 
 def main():
     # Listen for GCNs until the program is interrupted
     # (killed or interrupted with control-C).
     global args
+    global params
     args = parseargs()
     if args.fits:
         skymap, header = hp.read_map(args.fits, h=True, verbose=False)
         time = Time.now()
         header = dict(header)
         header['GraceID'] = header['OBJECT']
-        params = {'skymap_fits':args.fits,'skymap_array':np.copy(skymap),'GraceID':header['OBJECT']}
-        #prob, probfull, timetill90, m = prob_observable(skymap, header, time, plot=plotting)
-        _, _, _, m = prob_observable(skymap, header, time, plot=plotting)
-        params['skymap_array'] = m
-        get_galaxies.write_catalog(params,args.cat[0])
-        get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(args.cat[0],params['GraceID']))
-        make_phaseii.make_phaseii('LSTs_{}.out'.format(params['GraceID']))
+        params = {'AlertType':'fits','skymap_fits':args.fits,'skymap_array':np.copy(skymap),'GraceID':header['OBJECT']}
+        process_fits()
         return
 
     if args.test > 1:
