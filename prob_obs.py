@@ -8,6 +8,10 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import sys
+maxhetdec = 74
+minhetdec = -12
+minhetdec_rad = (90-maxhetdec)*np.pi/180
+maxhetdec_rad = (90-minhetdec)*np.pi/180
 def prob_observable(m, header, time, plot = False):
     """
     Determine the integrated probability contained in a gravitational-wave
@@ -31,8 +35,8 @@ def prob_observable(m, header, time, plot = False):
 
     HET_loc = (-104.01472,30.6814,2025)
     hetpupil = np.loadtxt('hetpix.dat')
-    hetfullpix = hp.query_strip(nside, (90-max(hetpupil[:,2]))*np.pi/180, \
-                            (90-min(hetpupil[:,2]))*np.pi/180)
+    hetfullpix = hp.query_strip(nside, minhetdec_rad, \
+                            maxhetdec_rad)
 
     observatory = astropy.coordinates.EarthLocation(
         lat=HET_loc[1]*u.deg, lon=HET_loc[0]*u.deg, height=HET_loc[2]*u.m)
@@ -122,7 +126,8 @@ def prob_observable(m, header, time, plot = False):
         #plt.show()
     theta90, phi90 = hp.pix2ang(nside, p90i)
     #mask skymap pixels by hetdex accesible region
-    theta90HETi = (theta90 > np.min(HETtheta))*(theta90 < np.max(HETtheta))
+    theta90HETi = (theta90 > minhetdec_rad)*(theta90 < maxhetdec_rad)
+    print(theta90HETi.sum(),theta90.min(),theta90.max())
     theta90HET = theta90[theta90HETi]
     phi90HET = phi90[theta90HETi]
     timetill90 = 0

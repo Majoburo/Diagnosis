@@ -55,11 +55,16 @@ def process_gcn(payload, root):
     if params['Group'] != 'CBC' or (float(params['BNS']) + float(params['NSBH']) < 0.5):
         return
 
-    # Print and save all parameters.
+    # Print and save some parameters.
+    interesting_parameters = ['GraceID', 'AlertType', 'EventPage',
+    'Instruments', 'FAR', 'skymap_fits',
+    'BNS', 'NSBH', 'BBH', 'MassGap',
+    'Terrestrial', 'HasNS', 'HasRemnant', 'role']
     with open('./'+params['GraceID']+'.dat','w') as f:
-        for key, value in params.items():
-            print(key, '=', value)
-            f.write('%s = %s\n'%(key,value))
+        for key in interesting_parameters:
+            print(key, '=', params[key])
+            f.write('%s = %s\n'%(key,params[key]))
+
 
     https, skymapfits = os.path.split(params['skymap_fits'])
     skymap_local,_ = urllib.request.urlretrieve(params['skymap_fits'],'./'+params['GraceID']+'.fits')
@@ -93,14 +98,21 @@ def process_gcn(payload, root):
             print('{:.1f} hours till you can observe the 90 % prob region.'.format(
                     timetill90))
             if args.send_notification:
-                email_ip.SendText('GW ALERT!: Time till 90% prob region is {:.1f} hours  '.format(timetill90),emails=[],recipients = args.recipients)
+                msjstring=''
+                if args.test > 0:
+                    msjstring = 'TEST '
+                msjstring += 'GW ALERT!: Time till 90% prob region is {:.1f} hours  '.format(timetill90)
+                email_ip.SendText(msjstring, emails=[], recipients = args.recipients)
             for catalog in args.cat:
                 get_galaxies.write_catalog(params,catalog)
                 get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(catalog,params['GraceID']))
                 make_phaseii.make_phaseii('LSTs_{}.out'.format(params['GraceID']))
             with open('./'+params['GraceID']+'.dat','r') as f:
                 emailcontent = '### {} GW ALERT ###\n'.format(params['AlertType'])
+                if args.test > 0:
+                    emailcontent += 'THIS IS A TEST'
                 emailcontent += 'Time until 90% probability region: {:.1f} hours\n\n'.format(timetill90)
+                emailcontent += 'CALL MAJO: +15125763501'
                 emailcontent += f.read()
                 emailcontent += '\n\n'
                 emailcontent += "If you happen to find the location of the source, please submit coordinates to GraceDB using submit_gracedb.py. \n"
