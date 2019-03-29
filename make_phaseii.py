@@ -32,7 +32,6 @@ def make_phaseii(lstfile):
         ra = Angle(targets[:,1],u.degree).hms#.to_string(unit=u.hour,sep=':')
         dec = ["{:+03.0f}:{:02.0f}:{:05.2f}".format(dd[0],abs(float(dd[1])),abs(float(dd[2]))) for dd in zip(dec[0],dec[1],dec[2])]
         ra = ["{:02.0f}:{:02.0f}:{:06.3f}".format(rr[0],rr[1],rr[2]) for rr in zip(ra[0],ra[1],ra[2])]
-        print(ra)
         for i,target in enumerate(targets):
             if float(target[2])>0:
                 target[2]='+'+target[2]
