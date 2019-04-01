@@ -65,9 +65,9 @@ def process_gcn(payload, root):
             print(key, '=', params[key])
             f.write('%s = %s\n'%(key,params[key]))
     # Print some values from the FITS header.
-    print('Distance =', header['DISTMEAN'], '+/-', header['DISTSTD'])
-    with open('./'+params['GraceID']+'.dat','a') as f:
-        f.write('Distance = {} +/- {}\n'.format(header['DISTMEAN'], header['DISTSTD']))
+    #print('Distance =', header['DISTMEAN'], '+/-', header['DISTSTD'])
+    #with open('./'+params['GraceID']+'.dat','a') as f:
+    #    f.write('Distance = {} +/- {}\n'.format(header['DISTMEAN'], header['DISTSTD']))
 
 
     https, skymapfits = os.path.split(params['skymap_fits'])
@@ -107,7 +107,8 @@ def process_fits():
                 send_notifications(params,timetill90,text=True,email=False)
             for catalog in args.cat:
                 get_galaxies.write_catalog(params,catalog)
-                get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(catalog,params['GraceID']))
+                mincontour = get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(catalog,params['GraceID']))
+                print(mincontour)
                 make_phaseii.make_phaseii('LSTs_{}.out'.format(params['GraceID']))
             if args.send_notification:
                 send_notifications(params,timetill90)
@@ -126,6 +127,8 @@ def send_notifications(params,timetill90,text=False,email=True):
                 emailcontent += 'THIS IS A TEST \n'
             emailcontent += 'Time until 90% probability region: {:.1f} hours\n\n'.format(timetill90)
             emailcontent += 'CALL MAJO: +15125763501 \n'
+            emailcontent += 'JOIN THE ZOOM LINK TO TALK TO THE MOUNTAIN: \n'
+            emailcontent += 'https://zoom.us/j/715671547 \n'
             emailcontent += f.read()
             emailcontent += '\n\n'
             emailcontent += "If you happen to find the location of the source, please submit coordinates to GraceDB using submit_gracedb.py. \n"

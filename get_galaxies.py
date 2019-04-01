@@ -92,12 +92,13 @@ def write_catalog(params,catalog):
             # Reading in the skymap prob and header
             locinfo, header = hp.read_map(fits, field=range(4), h=True)
             probb, distmu, distsigma, distnorm = locinfo
+            
             #Getting healpix resolution and pixel area in deg^2
-            npix = len(probability)
+            npix = len(probb)
             nside = hp.npix2nside(npix)
             # Area per pixel in steradians
             pixarea = hp.nside2pixarea(nside)
-            cat1 = pd.read_csv("./GLADE2.3HETd.csv", sep=',',usecols = [1,2,3,4],names=['RAJ2000','DEJ2000','d','B_Abs'],header=0,dtype=pd.np.float64)
+            cat1 = pd.read_csv("./GLADE2.3HETd.csv", sep=',',usecols = [1,2,3,4,5],names=['RAJ2000','DEJ2000','d','B_Abs','K_Abs'],header=0,dtype=pd.np.float64)
             dist = cat1['d']
             theta = 0.5*np.pi - cat1['DEJ2000']*np.pi/180
             phi = cat1['RAJ2000']*np.pi/180
@@ -110,33 +111,43 @@ def write_catalog(params,catalog):
             #z = (u.Quantity(cat1['cz'])/c.c).to(u.dimensionless_unscaled)
             #MK = cat1['Ktmag']-cosmo.distmod(z)
             
-            
             ipix = hp.ang2pix(nside, theta, phi)
+            #Calculate contour probability 
+            sortedpix = np.flipud(np.argsort(probb))
+            cumsum = np.cumsum(probb[sortedpix])
+            cls = np.empty_like(probb)
+            cls[sortedpix] = cumsum*100
+            cls = cls[ipix]
             #print(dir(conditional_pdf(dist,distmu[ipix],distsigma[ipix],distnorm[ipix])))
             #print(np.log(distnorm[ipix]) + np.log( norm(distmu[ipix], distsigma[ipix]).pdf(dist)))
             #logdp_dV = np.log(probability[ipix]) + np.log(distnorm[ipix]) + np.log( norm(distmu[ipix], distsigma[ipix]).pdf(dist)) - np.log(pixarea)
             logdp_dV = np.log(probability[ipix]) + np.log(conditional_pdf(dist,distmu[ipix],distsigma[ipix],distnorm[ipix]).tolist()) - np.log(pixarea)
-            s_lum = 10**(-0.4*cat1['B_Abs'])
-            s_lum = s_lum/s_lum.sum()
-            #s_det =
-            logdp_dV = np.log(s_lum)+logdp_dV
-            
+            #logdp_dV =  np.log(s_lumK) + logdp_dV
 
             top99i = logdp_dV-np.max(logdp_dV) > np.log(1/100)
-            #Now working only with event with probability 99% lower than the most probable
+            #Now working only with event with spatial probability 99% lower than the most probable
             logdp_dV = logdp_dV[top99i]
+
+            s_lumB = 10**(-0.4*cat1['B_Abs'][top99i])
+            s_lumB = s_lumB/s_lumB.sum()
+            s_lumK = 10**(-0.4*cat1['K_Abs'][top99i])
+            s_lumK = s_lumK/s_lumK.sum()
+            logdp_dV = np.log(s_lumB) + np.log(s_lumK) + logdp_dV
             #Shoudl change naming here for the probability now that including slum
             cattop = cat1[top99i]
             isort = np.argsort(logdp_dV)[::-1]
             cattop = Table.from_pandas(cattop.iloc[isort])
             logptop = logdp_dV.iloc[isort]
+            cls = cls[top99i]
+            cls = cls[isort]
             index = Column(name='index',data=np.arange(len(cattop)))
             logprob = Column(name='LogProb',data=logptop)
             exptime = Column(name='exptime',data=60*20*np.ones(len(cattop)))
+            contour = Column(name='contour',data = cls)
             Nvis = Column(name='Nvis',data=np.ones(len(cattop)))
             #Normalizing the probability of the most probable galaxies
-            cattop.add_columns([index,logprob,exptime,Nvis])
-            ascii.write(cattop['index','RAJ2000','DEJ2000','exptime','Nvis','LogProb'], 'galaxiesGLADE_%s.dat'%event, overwrite=True)
+            cattop.add_columns([index,logprob,exptime,Nvis,contour])
+            ascii.write(cattop['index','RAJ2000','DEJ2000','exptime','Nvis','LogProb','contour'], 'galaxiesGLADE_%s.dat'%event, overwrite=True)
             return cattop,logptop
 
 def main():

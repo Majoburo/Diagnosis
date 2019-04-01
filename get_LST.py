@@ -62,7 +62,7 @@ def get_LST(targf = 'galaxies2MASS.dat'):
 
     def dolab1(fig):#:,thisplot):
             #18, far over!
-            thisplot = fig.add_axes([0.824,0.06,0.05,0.05],visible=True)
+            thisplot = fig.add_axes([0.824,0.05,0.05,0.05],visible=True)
             thisplot.spines['bottom'].set_color('white')
             thisplot.spines['top'].set_color('white')
             thisplot.spines['left'].set_color('white')
@@ -73,7 +73,7 @@ def get_LST(targf = 'galaxies2MASS.dat'):
             thisplot.fill('white')
             thisplot.text(-0.045,-0.015,'18',fontsize=17)
             #12, near middle!
-            thisplot = fig.add_axes([0.628,0.06,0.05,0.05],visible=True)
+            thisplot = fig.add_axes([0.628,0.05,0.05,0.05],visible=True)
             thisplot.spines['bottom'].set_color('white')
             thisplot.spines['top'].set_color('white')
             thisplot.spines['left'].set_color('white')
@@ -84,7 +84,7 @@ def get_LST(targf = 'galaxies2MASS.dat'):
             thisplot.fill('white')
             thisplot.text(-0.045,-0.015,'12',fontsize=17)
             #6, at left
-            thisplot = fig.add_axes([0.438,0.06,0.05,0.05],visible=True)
+            thisplot = fig.add_axes([0.438,0.05,0.05,0.05],visible=True)
             thisplot.spines['bottom'].set_color('white')
             thisplot.spines['top'].set_color('white')
             thisplot.spines['left'].set_color('white')
@@ -144,8 +144,8 @@ def get_LST(targf = 'galaxies2MASS.dat'):
     #read in target ra/dec, exptime, nvis, moon
     targs = ascii.read(targf)
     #Only show 50 most probable galaxies
-    if len(targs)>20:
-        targs = targs[:20]
+    if len(targs)>100:
+        targs = targs[:100]
     #parse. IDs first, assume
     targ_id = targs.columns[0].data
     targ_ra = targs.columns[1].data
@@ -153,6 +153,7 @@ def get_LST(targf = 'galaxies2MASS.dat'):
     targ_exptime = targs.columns[3].data
     targ_nvis = targs.columns[4].data
     targ_logprob = targs.columns[5].data
+    targ_contour = targs.columns[6].data
 
     #read in HET observability data file
     hetf = HET_track
@@ -310,6 +311,7 @@ def get_LST(targf = 'galaxies2MASS.dat'):
         
         
         
+    probnorm = np.exp(targ_logprob.astype(float))/np.exp(targ_logprob.astype(float)).sum()
     if obs_plot:
         fig = plt.figure(figsize=(13,6))
         a = fig.add_subplot(111)
@@ -329,25 +331,25 @@ def get_LST(targf = 'galaxies2MASS.dat'):
         a.tick_params(axis='both', which='major', labelsize=16)
 
         a.set_xlim(offs,24+offs)
-        ystep = (max(targ_logprob)-min(targ_logprob))/10
-        a.set_ylim(min(targ_logprob)-ystep,max(targ_logprob)+ystep)
+        ystep = (max(probnorm)-min(probnorm))/10
+        a.set_ylim(min(probnorm)-ystep,max(probnorm)+ystep)
 
         a.set_xlabel(r'LST [h]', fontname='Arial', fontsize=22, fontweight='normal')
-        a.set_ylabel(r'Probability (LOG SCALE)', fontname='Arial', fontsize=22, fontweight='normal')
+        a.set_ylabel(r'Probability (NORMED)', fontname='Arial', fontsize=22, fontweight='normal')
             
 #fix manually in two cases:
         if (c_t==1): dolab1(fig)
         if (c_t==2): dolab2(fig) #none needed
         if (c_t==3): dolab3(fig)
 
-
-
     with open('LSTs_%s.out'%GraceID,'w') as f:
-        f.write("ID RA DEC LST1_start LST1_stop LST2_start LST2_stop Nvis Exptime LogProb \n")
-        for ra,dec,t1,t2,t3,t4,i,nv,texp,tprob in zip(targ_ra, targ_dec, LST1_start, LST1_stop, LST2_start, LST2_stop, targ_id, targ_nvis,targ_exptime, targ_logprob):
+        f.write("ID RA DEC LST1_start LST1_stop LST2_start LST2_stop Nvis Exptime Prob(Norm) Contour\n")
+        for ra,dec,t1,t2,t3,t4,i,nv,texp,tprob,cont in zip(targ_ra, targ_dec, LST1_start, LST1_stop, LST2_start, LST2_stop, targ_id, targ_nvis,targ_exptime, probnorm,targ_contour):
             i = i+1 #to match the tsl convention
             #if valid, add first trajectory for as many visits as needed
             if obs_plot:
+                galtxt = "{} ({:.1f})".format(i, cont)
+                print(galtxt)
                 if ((t1>-30)&(t2>-30)&(t3>-30)&(t4>-30)):
                     #two tracks! are they both definitely in darkness w/ appropriate moon?
                     # for now, ALWAYS include, even if impossible....
@@ -372,32 +374,32 @@ def get_LST(targf = 'galaxies2MASS.dat'):
                         a.plot(np.linspace(t3,t4,2), [tprob,tprob],color='green',lw=1)
                     
 
-                    a.text(t4+0.1, tprob,i,color='black', fontname='Arial',fontsize=10)
+                    a.text(t4+0.1, tprob,galtxt,color='black', fontname='Arial',fontsize=10)
                     # add second track to appropriate vector
                     #print("  two tracks good")
                 elif ((t1>-30)&(t2>-30)):
                     #only 1 is good. it is #1:
                     #add to singles
                     a.plot(np.linspace(t1,t2,2), [tprob,tprob],color='blue',lw=1)
-                    a.text(t2+0.1, tprob,i,color='black', fontname='Arial',fontsize=10)
+                    a.text(t2+0.1, tprob,galtxt,color='black', fontname='Arial',fontsize=10)
                     #print("  track 1 good")
                 elif ((t3>-30)&(t4>-30)):
                     a.plot(np.linspace(t3,t4,2), [tprob,tprob],color='blue',lw=1)
-                    a.text(t4+0.1, tprob,i,color='black', fontname='Arial',fontsize=10)
+                    a.text(t4+0.1, tprob,galtxt,color='black', fontname='Arial',fontsize=10)
                     #print("  track 2 good")
-            outp = "%i %.6f %.6f %.6f %.6f %.6f %.6f %i %i %.6f \n"%(i,ra,dec,t1,t2,t3,t4,nv,texp,tprob) 
+            outp = "%i %.6f %.6f %.6f %.6f %.6f %.6f %i %i %.6f %.1f\n"%(i,ra,dec,t1,t2,t3,t4,nv,texp,tprob,cont) 
             f.write(outp)
 
 
     if obs_plot:
     #labels:
-        a.text(0.5+offs,np.max(targ_logprob),'Single tracks (N/S)',color='blue', fontname='Arial', fontsize=19, fontweight='bold',alpha=0.8)
-        a.text(0.5+offs,np.max(targ_logprob)-ystep,'West tracks',color='red', fontname='Arial', fontsize=19, fontweight='normal',alpha=0.4)
-        a.text(0.5+offs,np.max(targ_logprob)-2*ystep,'East tracks',color='green', fontname='Arial', fontsize=19, fontweight='normal',alpha=0.4)
+        a.text(0.5+offs,np.max(probnorm),'Single tracks (N/S)',color='blue', fontname='Arial', fontsize=19, fontweight='bold',alpha=0.8)
+        a.text(0.5+offs,np.max(probnorm)-ystep,'West tracks',color='red', fontname='Arial', fontsize=19, fontweight='normal',alpha=0.4)
+        a.text(0.5+offs,np.max(probnorm)-2*ystep,'East tracks',color='green', fontname='Arial', fontsize=19, fontweight='normal',alpha=0.4)
     #note names are off.... but ok.
 
     #horizontal lines
-        llines = np.arange(np.min(targ_logprob),np.max(targ_logprob),ystep)
+        llines = np.arange(np.min(probnorm),np.max(probnorm),ystep)
         for l in llines:
                 a.plot([-1+offs,25+offs],[l,l],color='grey',lw=1,ls=':',alpha=0.8)
 
@@ -405,7 +407,7 @@ def get_LST(targf = 'galaxies2MASS.dat'):
         graout = 'LSTs_'+GraceID+'.pdf'
 
         fig.savefig(graout, bbox_inches='tight')
-
+    return targ_contour.min()
 def main():
     get_LST(targf = sys.argv[1])
 

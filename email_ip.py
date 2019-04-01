@@ -65,7 +65,6 @@ def SendText(content,emailcontent=None,plotfiles=[],datafiles=[],numbers=None,em
 
 def main():
     SendText('TEST  ',plotfiles=['LSTs_MS181101ab.pdf','MOLL_GWHET_M2052.pdf'],numbers=[('5125763501','tmobile')],emails=['majoburo@gmail.com'])
-    SendText('TEST  ',plotfiles=['LSTs_MS181101ab.pdf','MOLL_GWHET_M2052.pdf'],numbers=[('5125763501','tmobile')],emails=['majoburo@gmail.com'])
 
 if __name__=='__main__':
     main()
