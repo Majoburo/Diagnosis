@@ -99,6 +99,7 @@ def write_catalog(params,catalog):
             # Area per pixel in steradians
             pixarea = hp.nside2pixarea(nside)
             cat1 = pd.read_csv("./GLADE2.3HETd.csv", sep=',',usecols = [1,2,3,4,5],names=['RAJ2000','DEJ2000','d','B_Abs','K_Abs'],header=0,dtype=pd.np.float64)
+            #cat1 = pd.read_csv("./GLADE2.3.csv", sep=',',usecols = [1,2,3,4,5],names=['RAJ2000','DEJ2000','d','B_Abs','K_Abs'],header=0,dtype=pd.np.float64)
             dist = cat1['d']
             theta = 0.5*np.pi - cat1['DEJ2000']*np.pi/180
             phi = cat1['RAJ2000']*np.pi/180
@@ -123,22 +124,30 @@ def write_catalog(params,catalog):
             #logdp_dV = np.log(probability[ipix]) + np.log(distnorm[ipix]) + np.log( norm(distmu[ipix], distsigma[ipix]).pdf(dist)) - np.log(pixarea)
             logdp_dV = np.log(probability[ipix]) + np.log(conditional_pdf(dist,distmu[ipix],distsigma[ipix],distnorm[ipix]).tolist()) - np.log(pixarea)
             #logdp_dV =  np.log(s_lumK) + logdp_dV
-
-            top99i = logdp_dV-np.max(logdp_dV) > np.log(1/100)
-            #Now working only with event with spatial probability 99% lower than the most probable
-            logdp_dV = logdp_dV[top99i]
-
-            s_lumB = 10**(-0.4*cat1['B_Abs'][top99i])
-            s_lumB = s_lumB/s_lumB.sum()
-            s_lumK = 10**(-0.4*cat1['K_Abs'][top99i])
+            #cutting to select only 90 % confidence
+            cattop = cat1[cls<90]
+            logdp_dV= logdp_dV[cls<90]
+            #s_lumB = 10**(-0.4*cat1['B_Abs'][cls>90])
+            #s_lumB = s_lumB/s_lumB.sum()
+            s_lumK = 10**(-0.4*cat1['K_Abs'][cls<90])
             s_lumK = s_lumK/s_lumK.sum()
-            logdp_dV = np.log(s_lumB) + np.log(s_lumK) + logdp_dV
-            #Shoudl change naming here for the probability now that including slum
-            cattop = cat1[top99i]
+            #only using K for now
+            logdp_dV = np.log(s_lumK) + logdp_dV
+            cls = cls[cls<90]
+            
+            top99i = logdp_dV-np.max(logdp_dV) > np.log(1/100)
+            import pdb
+            pdb.set_trace()
+            
+            #Now working only with event with spatial probability 99.9% lower than the most probable
+            cattop = cattop[top99i]
+            logdp_dV = logdp_dV[top99i]
             isort = np.argsort(logdp_dV)[::-1]
             cattop = Table.from_pandas(cattop.iloc[isort])
             logptop = logdp_dV.iloc[isort]
             cls = cls[top99i]
+
+            #Shoudl change naming here for the probability now that including slum
             cls = cls[isort]
             index = Column(name='index',data=np.arange(len(cattop)))
             logprob = Column(name='LogProb',data=logptop)
