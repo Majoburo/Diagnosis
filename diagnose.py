@@ -83,7 +83,7 @@ def process_fits():
         # Print some values from the FITS header.
         header = dict(header)
         header['GraceID'] = params['GraceID']
-        with open('./'+params['GraceID']+'.dat','w') as f:
+        with open('./'+params['GraceID']+'.dat','a') as f:
             print('Distance =', header['DISTMEAN'], '+/-', header['DISTSTD'])
             f.write('Distance = {} +/- {}\n'.format(header['DISTMEAN'], header['DISTSTD']))
         time = Time.now()
