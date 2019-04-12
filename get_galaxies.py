@@ -41,7 +41,7 @@ def parseargs():
 def cdf(pdf):
     #Calculate contour in probability
     sortedpix = np.flipud(np.argsort(pdf))
-    cumsum = np.cumsum(probb[sortedpix])
+    cumsum = np.cumsum(pdf[sortedpix])
     cls = np.empty_like(pdf)
     cls[sortedpix] = cumsum*100
     return cls
@@ -111,7 +111,7 @@ def write_catalog(params,catalog):
         #cat1 = pd.read_csv("./GLADE2.3.csv", sep=',',usecols = [1,2,3,4,5],names=['RAJ2000','DEJ2000','d','B_Abs','K_Abs'],header=0,dtype=pd.np.float64)
         theta = 0.5*np.pi - cat1['DEJ2000']*np.pi/180
         phi = cat1['RAJ2000']*np.pi/180
-        cls = cls(probb)
+        cls = cdf(probb)
 
         ipix = hp.ang2pix(nside, theta, phi)
         cls = cls[ipix]

@@ -43,7 +43,6 @@ def process_gcn(payload, root):
             return
     elif root.attrib['role'] != 'observation':
             return
-    #print('GW ALERT!')
 
     # Read all of the VOEvent parameters from the "What" section.
     global params
@@ -52,7 +51,7 @@ def process_gcn(payload, root):
               for elem in root.iterfind('.//Param')}
     params['role'] = root.attrib['role']
     # Respond only to 'CBC' events that have a change of EMBRIGHT.
-    if params['Group'] != 'CBC' or (float(params['BNS']) + float(params['NSBH']) < 0.5):
+    if params['Group'] != 'CBC' or (float(params['BNS']) + float(params['NSBH']) < 0.1):
         return
 
     # Print and save some parameters.
@@ -64,11 +63,6 @@ def process_gcn(payload, root):
         for key in interesting_parameters:
             print(key, '=', params[key])
             f.write('%s = %s\n'%(key,params[key]))
-    # Print some values from the FITS header.
-    #print('Distance =', header['DISTMEAN'], '+/-', header['DISTSTD'])
-    #with open('./'+params['GraceID']+'.dat','a') as f:
-    #    f.write('Distance = {} +/- {}\n'.format(header['DISTMEAN'], header['DISTSTD']))
-
 
     https, skymapfits = os.path.split(params['skymap_fits'])
     skymap_local,_ = urllib.request.urlretrieve(params['skymap_fits'],'./'+params['GraceID']+'.fits')
@@ -86,10 +80,12 @@ def process_fits():
         # Read the HEALPix sky map and the FITS header.
         skymap, header = hp.read_map(params['skymap_fits'],
                                      h=True, verbose=False)
+        # Print some values from the FITS header.
         header = dict(header)
         header['GraceID'] = params['GraceID']
         with open('./'+params['GraceID']+'.dat','w') as f:
-            f.write('THIS ALERT DOES NOT CONTAIN RELEVANT PARAMETER INFORMATION SINCE IT WAS CREATED FROM A FITS FILE (NOT A GCN NOTICE).')
+            print('Distance =', header['DISTMEAN'], '+/-', header['DISTSTD'])
+            f.write('Distance = {} +/- {}\n'.format(header['DISTMEAN'], header['DISTSTD']))
         time = Time.now()
         prob, probfull, timetill90, m = prob_observable(skymap, header, time, plot=plotting)
         params['skymap_array'] = m
@@ -98,17 +94,16 @@ def process_fits():
             return
         else:
             print("Source has a {:.1f}% chance of being observable now.".format(
-                    int(round(100 * prob))))
+                 int(round(100 * prob))))
             print("Integrated probability over 24 hours (ignoring the sun) is {:.1f}%".format(
-                    int(round(100 * probfull))))
+                int(round(100 * probfull))))
             print('{:.1f} hours till you can observe the 90 % prob region.'.format(
-                    timetill90))
+                timetill90))
             if args.send_notification:
                 send_notifications(params,timetill90,text=True,email=False)
             for catalog in args.cat:
                 get_galaxies.write_catalog(params,catalog)
                 mincontour = get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(catalog,params['GraceID']))
-                print(mincontour)
                 make_phaseii.make_phaseii('LSTs_{}.out'.format(params['GraceID']))
             if args.send_notification:
                 send_notifications(params,timetill90)
@@ -153,6 +148,8 @@ def main():
         header = dict(header)
         header['GraceID'] = header['OBJECT']
         params = {'AlertType':'fits','skymap_fits':args.fits,'skymap_array':np.copy(skymap),'GraceID':header['OBJECT']}
+        with open('./'+params['GraceID']+'.dat','w') as f:
+            f.write('THIS ALERT DOES NOT CONTAIN RELEVANT PARAMETER INFORMATION SINCE IT WAS CREATED FROM A FITS FILE (NOT A GCN NOTICE).')
         process_fits()
         return
 

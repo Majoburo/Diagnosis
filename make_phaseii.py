@@ -6,7 +6,7 @@ def make_phaseii(lstfile):
     common = {
                 'PROGRAM':'HET19-2-400',
                 'VIFU':'047',
-                'EXP':'120',
+                'EXP':'360',
                 'NUMEXP':'3',
                 'EQUINOX':'2000.0',
                 'INSTRUMENT':'VIRUS',
