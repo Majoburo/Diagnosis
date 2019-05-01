@@ -7,6 +7,7 @@ from email.mime.text import MIMEText
 import os.path
 import datetime
 import importlib
+import txttwilio
 carriers = {'consumer':'@mailmymobile.net','gphi':'@msg.fi.google.com','verizon':'@vtext.com','tmobile': '@tmomail.net', 'att': '@txt.att.net'}
 def SendText(content,emailcontent=None,plotfiles=[],datafiles=[],numbers=None,emails=None,recipients='recipients.py'):
     try:
@@ -30,7 +31,8 @@ def SendText(content,emailcontent=None,plotfiles=[],datafiles=[],numbers=None,em
         msg.attach(MIMEText(content))
         for number,carrier in numbers:
             msg['To'] = number+carriers[carrier]
-            mailserver.sendmail(pr.username, number + carriers[carrier], msg.as_string())
+            txttwilio.sentxt(pr.TW_account_sid, pr.TW_auth_token, number, content)
+            #mailserver.sendmail(pr.username, number + carriers[carrier], msg.as_string())
             print("Sent {} to {}.".format(content,number))
         msg = MIMEMultipart()
         msg['Subject'] = 'GW alert'
