@@ -35,13 +35,12 @@ def parseargs():
     gcn.notice_types.LVC_UPDATE)
 
 def process_gcn(payload, root):
-    # Respond only to 'test' events.
-    # VERY IMPORTANT! Replace with the following code
-    # to respond to only real 'observation' events.
+    with open('time_last.txt', 'w') as f:
+        f.write('%s'%Time.now().jd)
     if args.test > 0:
         if root.attrib['role'] != 'test':
             return
-    elif root.attrib['role'] != 'observation':
+    elif root.attrib['role'] != 'observation' or root.attrib['role'] != 'test':
             return
 
     # Read all of the VOEvent parameters from the "What" section.
@@ -50,6 +49,10 @@ def process_gcn(payload, root):
               elem.attrib['value']
               for elem in root.iterfind('.//Param')}
     params['role'] = root.attrib['role']
+    if params['role'] = 'test':
+        recipients = 'recipients_hour_test.py'
+    else:
+        recipients = args.recipients
     # Respond only to 'CBC' events that have a change of EMBRIGHT.
     if params['Group'] != 'CBC' or (float(params['BNS']) + float(params['NSBH']) < 0.1):
         return
@@ -114,7 +117,7 @@ def send_notifications(params,timetill90,text=False,email=True):
         if args.test > 0:
             msjstring = 'TEST '
         msjstring += 'GW ALERT!: Time till 90% prob region is {:.1f} hours  '.format(timetill90)
-        email_ip.SendText(msjstring, emails=[], recipients = args.recipients)
+        email_ip.SendText(msjstring, emails=[], recipients = recipients)
     if email:
         with open('./'+params['GraceID']+'.dat','r') as f:
             emailcontent = '### {} GW ALERT ###\n'.format(params['AlertType'])
@@ -134,7 +137,7 @@ def send_notifications(params,timetill90,text=False,email=True):
                     plotfiles = [x.format(params['GraceID']) for x in ['LSTs_{}.pdf','MOLL_GWHET_{}.pdf']],
                     datafiles = [x.format(params['GraceID']) for x in ['LSTs_{}.out','{}.tsl']] ,
                     numbers = [],
-                    recipients = args.recipients)
+                    recipients = recipients)
 
 def main():
     # Listen for GCNs until the program is interrupted
