@@ -49,7 +49,7 @@ def process_gcn(payload, root):
               elem.attrib['value']
               for elem in root.iterfind('.//Param')}
     params['role'] = root.attrib['role']
-    if params['role'] = 'test':
+    if params['role'] == 'test':
         recipients = 'recipients_hour_test.py'
     else:
         recipients = args.recipients
