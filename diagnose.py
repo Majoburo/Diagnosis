@@ -48,9 +48,9 @@ def process_gcn(payload, root):
               for elem in root.iterfind('.//Param')}
     params['role'] = root.attrib['role']
     if params['role'] == 'test':
-        recipients = 'recipients_hour_test.py'
+        params['recipients'] = 'recipients_hour_test.py'
     else:
-        recipients = args.recipients
+        params['recipients'] = args.recipients
     # Respond only to 'CBC' events that have a change of EMBRIGHT.
     if params['Group'] != 'CBC' or (float(params['BNS']) + float(params['NSBH']) < 0.1):
         return
@@ -74,12 +74,13 @@ def process_gcn(payload, root):
     print("Skymap downloaded.")
 
     if 'skymap_fits' in params:
-        process_fits()
+        process_fits(params['recipients'])
     with open('time_last.txt', 'w') as f:
         f.write('%s'%Time.now().jd)
     return
-def process_fits():
+def process_fits(recipients):
         global params
+        params['recipients'] = recipients
         # Read the HEALPix sky map and the FITS header.
         skymap, header = hp.read_map(params['skymap_fits'],
                                      h=True, verbose=False)
@@ -117,7 +118,7 @@ def send_notifications(params,timetill90,text=False,email=True):
         if args.test > 0:
             msjstring = 'TEST '
         msjstring += 'GW ALERT!: Time till 90% prob region is {:.1f} hours  '.format(timetill90)
-        email_ip.SendText(msjstring, emails=[], recipients = recipients)
+        email_ip.SendText(msjstring, emails=[], recipients = params['recipients'] )
     if email:
         with open('./'+params['GraceID']+'.dat','r') as f:
             emailcontent = '### {} GW ALERT ###\n'.format(params['AlertType'])
@@ -137,7 +138,7 @@ def send_notifications(params,timetill90,text=False,email=True):
                     plotfiles = [x.format(params['GraceID']) for x in ['LSTs_{}.pdf','MOLL_GWHET_{}.pdf']],
                     datafiles = [x.format(params['GraceID']) for x in ['LSTs_{}.out','{}.tsl']] ,
                     numbers = [],
-                    recipients = recipients)
+                    recipients =params['recipients'] )
 
 def main():
     # Listen for GCNs until the program is interrupted
@@ -153,7 +154,7 @@ def main():
         params = {'AlertType':'fits','skymap_fits':args.fits,'skymap_array':np.copy(skymap),'GraceID':header['OBJECT']}
         with open('./'+params['GraceID']+'.dat','w') as f:
             f.write('THIS ALERT DOES NOT CONTAIN RELEVANT PARAMETER INFORMATION SINCE IT WAS CREATED FROM A FITS FILE (NOT A GCN NOTICE).')
-        process_fits()
+        process_fits(args.recipients)
         return
 
     if args.test > 1:
