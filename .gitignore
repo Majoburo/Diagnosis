@@ -5,8 +5,7 @@ LST_*.pdf
 galaxies*.dat
 MS*
 *pdf
-#private info
-private.py
+*.stdout
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -112,3 +111,8 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# private
+recipients.py
+recipientstest.py
+recipients_hour_test.py
