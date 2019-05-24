@@ -1,6 +1,6 @@
 from astropy.time import Time
 import email_ip
-import numpy
+import numpy as np
 
 now = Time.now().jd
 last = np.loadtxt('time_last.txt')

@@ -35,8 +35,6 @@ def parseargs():
     gcn.notice_types.LVC_UPDATE)
 
 def process_gcn(payload, root):
-    with open('time_last.txt', 'w') as f:
-        f.write('%s'%Time.now().jd)
     if args.test > 0:
         if root.attrib['role'] != 'test':
             return
@@ -77,6 +75,8 @@ def process_gcn(payload, root):
 
     if 'skymap_fits' in params:
         process_fits()
+    with open('time_last.txt', 'w') as f:
+        f.write('%s'%Time.now().jd)
     return
 def process_fits():
         global params
