@@ -1,0 +1,2 @@
+ * * * * * /bin/bash /Users/majoburo/work/Diagnosis/check_script_rerun.sh
+ 0 * * * * /bin/bash /Users/majoburo/work/Diagnosis/check_hour.sh
