@@ -1,7 +1,8 @@
 #! /bin/bash
 #CMD="source /Users/majoburo/.bash_profile; tmux new-session -d -s Diagnosis \"source /Users/majoburo/.bash_profile; cd work/Diagnosis/; python diagnose.py recipients.py \" "
-CMD="source /Users/majoburo/.bash_profile; cd work/Diagnosis/; nohup python diagnose.py recipients.py 2>&1 >> diagnose.stdout & "
+CMD="source /Users/majoburo/.bash_profile; cd /Users/majoburo/work/Diagnosis/; nohup python diagnose.py recipients.py 2>&1 >> diagnose.stdout & "
 SEARCHSTR="python diagnose.py" # should be start of last part of command
+echo $CMD
 
 # run pgrep to see if command exists
 pidcmd="pgrep -f \"${SEARCHSTR}\" "

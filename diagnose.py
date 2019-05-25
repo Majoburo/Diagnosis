@@ -38,7 +38,7 @@ def process_gcn(payload, root):
     if args.test > 0:
         if root.attrib['role'] != 'test':
             return
-    elif root.attrib['role'] != 'observation' or root.attrib['role'] != 'test':
+    elif root.attrib['role'] not in ['observation' , 'test']:
             return
 
     # Read all of the VOEvent parameters from the "What" section.
@@ -48,6 +48,7 @@ def process_gcn(payload, root):
               for elem in root.iterfind('.//Param')}
     params['role'] = root.attrib['role']
     if params['role'] == 'test':
+        print("test event")
         params['recipients'] = 'recipients_hour_test.py'
     else:
         params['recipients'] = args.recipients
@@ -56,6 +57,7 @@ def process_gcn(payload, root):
         return
 
     # Print and save some parameters.
+    print("interesting params")
     interesting_parameters = ['GraceID', 'AlertType', 'EventPage',
     'Instruments', 'FAR', 'skymap_fits',
     'BNS', 'NSBH', 'BBH', 'MassGap',
@@ -74,6 +76,7 @@ def process_gcn(payload, root):
     print("Skymap downloaded.")
 
     if 'skymap_fits' in params:
+        print("process fits")
         process_fits(params['recipients'])
     with open('time_last.txt', 'w') as f:
         f.write('%s'%Time.now().jd)
