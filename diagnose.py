@@ -26,7 +26,7 @@ def parseargs():
 
     parser = argparse.ArgumentParser(description='Receive and parse GCN alerts, alert observers and create observing tools.')
     parser.add_argument('recipients', help = 'Specify python file with list of recipients.')
-    parser.add_argument('--graceid', dest='graceid', default = None, help='graceID of event')
+    parser.add_argument('-g','--graceid', dest='graceid', default = None, help='graceID of event')
     args = parser.parse_args()
 
     return args

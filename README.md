@@ -126,7 +126,7 @@ Mollweide projection plot of the sky for the time of the alert. It displays:
 - PINK: Bellow the horizon.
 
 #### LSTs_{EVENT}.pdf
-![LSTs_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/LSTs_MS191113v.png)
+![LSTs_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/LSTs_MS191113v.pdf)
 
 
 Plot of at most 100 most probable observable galaxies with their corresponding LSTs.

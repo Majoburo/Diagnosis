@@ -180,7 +180,7 @@ def get_LST(targf = 'galaxies2MASS.dat'):
 
     for i,r,d,e,n in zip(targ_id,targ_ra,targ_dec,targ_exptime,targ_nvis):
 
-            print('TARGET: '+str(i))
+            #print('TARGET: '+str(i))
             #ok, so for this ra,dec (and exptime/nvis), find time per visit
             epv = e/n
             #also, get RA in decimal hours
@@ -218,9 +218,9 @@ def get_LST(targf = 'galaxies2MASS.dat'):
                 ha_total = hama-hami #in hours
                 req_h = tott/(3600*u.s)
                 if (req_h > ha_total):
-                    print(' ')
+                    #print(' ')
                     #print('target: '+str(i))
-                    print(ha1,ha2,ha3,ha4)
+                    #print(ha1,ha2,ha3,ha4)
                     print("{:.2f}h on first track available. you requested: {:.2f}h per ({:.0f}) visit".format(ha_total, req_h.value,n))
                     #how many visits would it need?
                     fix_nv = np.int(1.+(e/3600.)/ha_total)
@@ -349,7 +349,7 @@ def get_LST(targf = 'galaxies2MASS.dat'):
             #if valid, add first trajectory for as many visits as needed
             if obs_plot:
                 galtxt = "{} ({:.1f})".format(i, cont)
-                print(galtxt)
+                #print(galtxt)
                 if ((t1>-30)&(t2>-30)&(t3>-30)&(t4>-30)):
                     #two tracks! are they both definitely in darkness w/ appropriate moon?
                     # for now, ALWAYS include, even if impossible....
