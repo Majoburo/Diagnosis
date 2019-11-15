@@ -12,10 +12,12 @@ import urllib.request
 import lxml
 import numpy as np
 import json
+import matplotlib.pyplot as plt
+import lxml.etree
 
 plotting = True
 params = {}
-interesting_parameters = ['GraceID', 'AlertType', 'EventPage',\
+interesting_parameters = ['GraceID', 'AlertType','time', 'EventPage',\
     'Instruments', 'FAR', 'skymap_fits',\
     'BNS', 'NSBH', 'BBH', 'MassGap',\
     'Terrestrial', 'HasNS', 'HasRemnant', 'Distance','role']
@@ -69,8 +71,8 @@ def process_fits(recipients, params = None):
 
         # Print and save some values from the FITS header.
         header = dict(header)
+        params['time'] = Time(header['DATE-OBS'],format='isot',scale='utc')
         time = Time.now()
-        params['time'] = time
         params['Distance'] = str(header['DISTMEAN']) + ' +/- ' + str(header['DISTSTD'])
         header['GraceID'] = params['GraceID']
         with open('./'+params['GraceID']+'.dat','w') as f:
@@ -86,7 +88,6 @@ def process_fits(recipients, params = None):
         labels = ['BNS', 'NSBH', 'BBH', 'MassGap', 'Terrestrial']
         sizes = [float(params[label])*100 for label in labels]
         labels = ['%s (%.1f %%)'%(lab,pct) for lab,pct in zip(labels,sizes)]
-        import matplotlib.pyplot as plt
         fig1, ax1 = plt.subplots()
         patches,texts = ax1.pie(sizes, startangle=90)
         ax1.legend(patches, labels, loc="best")
@@ -108,20 +109,19 @@ def process_fits(recipients, params = None):
             print('{:.1f} hours till you can observe the 90 % prob region.'.format(
                 timetill90))
             send_notifications(params,timetill90,text=True,email=False)
-            for catalog in ['GLADE']:
-                get_galaxies.write_catalog(params,catalog)
-                mincontour = get_LST.get_LST(targf = 'galaxies%s_%s.dat'%(catalog,params['GraceID']))
-                make_phaseii.make_phaseii('LSTs_{}.out'.format(params['GraceID']))
+            get_galaxies.write_catalog(params,'GLADE')
+            mincontour = get_LST.get_LST(targf = 'galaxies%s_%s.dat'%('GLADE',params['GraceID']))
+            make_phaseii.make_phaseii('LSTs_{}.out'.format(params['GraceID']))
             send_notifications(params,timetill90)
 
 def send_notifications(params,timetill90,text=False,email=True):
     if text:
         msjstring=''
-        msjstring = params['role'] + ' '
+        msjstring = params['role'].upper() + ' '
         if timetill90 == -99:
             msjstring = 'OUT-OF-HET-REACH '
-        msjstring += 'GW ALERT!: Time till 90% prob region is {:.1f} hours  '.format(timetill90)
-        email_ip.SendText(msjstring, AlertType = params['role'], emails=[], recipients = args.recipients )
+        msjstring += 'GW ALERT: Time till 90% prob region is {:.1f} hours  '.format(timetill90)
+        email_ip.SendText(msjstring, AlertType = params['role'].upper(), emails=[], recipients = args.recipients )
     if email:
         with open('./'+params['GraceID']+'.dat','r') as f:
             emailcontent = '<style>\
@@ -155,7 +155,7 @@ def send_notifications(params,timetill90,text=False,email=True):
                             </tr>\
                             </table>'%(*[x.format(params['GraceID']) for x in ['MOLL_GWHET_{}.png','piechart_{}.png']],)
             email_ip.SendText(emailcontent,
-                    AlertType = params['role'],
+                    AlertType = params['role'].upper(),
                     plotfiles = [x.format(params['GraceID']) for x in ['LSTs_{}.pdf','MOLL_GWHET_{}.png','piechart_{}.png']],
                     datafiles = [x.format(params['GraceID']) for x in ['LSTs_{}.out','{}.tsl']] ,
                     numbers = [],
@@ -168,7 +168,6 @@ def main():
     global params
     args = parseargs()
     if args.graceid:
-        import lxml.etree
         urllib.request.urlretrieve('https://gracedb.ligo.org/apiweb/superevents/'+args.graceid+'/files/',"index.html")
         with open('index.html') as f: a = json.load(f)
         xmlfiles = [key for key in a.keys() if key.endswith('xml')]
