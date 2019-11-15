@@ -50,50 +50,6 @@ def write_catalog(params,catalog):
     fits = params['skymap_fits']
     event = params['GraceID']
     probability = params['skymap_array']
-    if catalog == '2MASS':
-        # Reading in the skymap prob and header
-        locinfo, header = hp.read_map(fits, field=range(4), h=True)
-        probb, distmu, distsigma, distnorm = locinfo
-        #Getting healpix resolution and pixel area in deg^2
-        npix = len(probability)
-        nside = hp.npix2nside(npix)
-
-        # Area per pixel in steradians
-        pixarea = hp.nside2pixarea(nside)
-        Vizier.ROW_LIMIT = -1 # This gets the complete catalog
-        cat1, = Vizier.get_catalogs('J/ApJS/199/26/table3') # Downloading the 2MRS Galaxy Catalog
-        completeness = 0.5
-        alpha = -1.0
-        MK_star = -23.55
-        MK_max = MK_star + 2.5*np.log10(gammaincinv(alpha + 2, completeness))
-        z = (u.Quantity(cat1['cz'])/c.c).to(u.dimensionless_unscaled)
-        MK = cat1['Ktmag']-cosmo.distmod(z)
-        keep = (z > 0) & (MK < MK_max) & (cat1['DEJ2000']>-12.7)&(cat1['DEJ2000']<74.1)
-        cat1 = cat1[keep]
-        z = z[keep]
-        r = cosmo.luminosity_distance(z).to('Mpc').value
-        theta = 0.5*np.pi - cat1['DEJ2000'].to('rad').value
-        phi = cat1['RAJ2000'].to('rad').value
-        ipix = hp.ang2pix(nside, theta, phi)
-        #logdp_dV = np.log(probability[ipix]) + np.log(distnorm[ipix])+np.log( norm(distmu[ipix], distsigma[ipix]).pdf(r))-np.log(pixarea)
-        logdp_dV = np.log(probability[ipix]) + np.log(conditional_pdf(r,distmu[ipix],distsigma[ipix],distnorm[ipix]).tolist()) - np.log(pixarea)
-        top99i = logdp_dV-np.max(logdp_dV) > np.log(1/100)
-        #Now working only with event with probability 99% lower than the most probable
-        logdp_dV = logdp_dV[top99i]
-        cattop = cat1[top99i]
-        isort = np.argsort(logdp_dV)[::-1]
-        cattop = cattop[isort]
-        logptop = logdp_dV[isort]
-
-
-        index = Column(name='index',data=np.arange(len(cattop)))
-        logprob = Column(name='LogProb',data=logptop)
-        exptime = Column(name='exptime',data=60*20*np.ones(len(cattop)))
-        Nvis = Column(name='Nvis',data=np.ones(len(cattop)))
-        #Normalizing the probability of the most probable galaxies
-        cattop.add_columns([index,logprob,exptime,Nvis])
-        ascii.write(cattop['index','RAJ2000','DEJ2000','exptime','Nvis','LogProb'], 'galaxies2MASS_%s.dat'%event, overwrite=True)
-        return cattop,logptop
 
     if catalog == 'GLADE':
 
@@ -158,10 +114,10 @@ def main():
     prob, header = hp.read_map(args.fits, h=True)
     header = dict(header)
     params = {'skymap_fits':args.fits,'skymap_array':prob,'GraceID':header['OBJECT']}
-    if args.cat == 'GLADE' or args.cat == '2MASS':
+    if args.cat == 'GLADE':
         write_catalog(params,args.cat)
     else:
-        print('Must specify either GLADE or 2MASS as catalogs.')
+        print('Must specify GLADE as catalog for now.')
 
 if __name__== "__main__":
     main()
