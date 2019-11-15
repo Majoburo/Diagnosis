@@ -1,12 +1,14 @@
 #Program outputs
-MOLL_*.pdf
-LST*.out
-LST_*.pdf
-galaxies*.dat
-MS*
-*pdf
+*.pdf
+*.png
+*.out
+*.dat
 *.stdout
+*.xml
+*.tsl
+recipients*py
 time_last.txt
+index.html
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
