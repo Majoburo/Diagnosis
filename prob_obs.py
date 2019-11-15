@@ -114,15 +114,29 @@ def prob_observable(m, header, time, plot = False):
         ipix_sun = hp.query_disc(nside, xyz, radius)
 
         #Coloring the plot, order important here!
-        mplot[altaz.secz > 2.5] = 0.5
-        mplot[altaz.alt < 0] = 0.4
-        mplot[newpixp] = 0.8
-        mplot[p90i] = 0.9
-        mplot[ipix_sun] = 1
-        hp.mollview(mplot, coord='C', cbar=False, max=1, title='HET NOW',)
+        mplot[:] = 1
+        mplot[altaz.secz > 2.5] = 0.1
+        mplot[altaz.alt < 0] = 0.99
+        mplot[newpixp] = 0.2
+        mplot[p90i] = 0.4
+        mplot[ipix_sun] = 0.6
+        hp.mollview(mplot, coord='C',cmap= 'nipy_spectral', cbar=False, max=1, title='HET NOW')
         hp.graticule(local=True)
+        ax1 = [2,4,6,8,10,12,14,16,18,20,22,24]
+        for ii in ax1:
+            hp.projtext(ii/24.*360-1,-5,str(ii)+'h',lonlat=True)
+        ax2 = [60,30,0,-30,-60]
+        for ii in ax2:
+            hp.projtext(360./2,ii,'   '+str(ii)+'°',lonlat=True)
+        plt.savefig('MOLL_GWHET_%s.png'%header['GraceID'])
+        #plt.show()
+        
+        #from astropy.wcs import WCS
 
-        plt.savefig('MOLL_GWHET_%s.pdf'%header['GraceID'])
+        #ax = plt.subplot(1,1,1, projection=WCS(target_header))
+        #ax.imshow(array, vmin=0, vmax=1.e-8)
+        #ax.coords.grid(color='white')
+        #ax.coords.frame.set_color('none')
         #plt.show()
     theta90, phi90 = hp.pix2ang(nside, p90i)
     #mask skymap pixels by hetdex accesible region

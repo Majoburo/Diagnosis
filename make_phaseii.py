@@ -4,7 +4,7 @@ from astropy import units as u
 from astropy.coordinates import Angle
 def make_phaseii(lstfile):
     common = {
-                'PROGRAM':'HET19-2-400',
+                'PROGRAM':'HET19-3-400',
                 'VIFU':'047',
                 'EXP':'360',
                 'NUMEXP':'3',

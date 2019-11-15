@@ -9,7 +9,7 @@ import datetime
 import importlib
 import txttwilio
 carriers = {'consumer':'@mailmymobile.net','gphi':'@msg.fi.google.com','verizon':'@vtext.com','tmobile': '@tmomail.net', 'att': '@txt.att.net'}
-def SendText(content,emailcontent=None,plotfiles=[],datafiles=[],numbers=None,emails=None,recipients='recipients.py'):
+def SendText(content,AlertType='',emailcontent=None,plotfiles=[],datafiles=[],numbers=None,emails=None,recipients='recipients.py'):
     try:
         if not os.path.exists(recipients):
             print("Couldn't find " + recipients)
@@ -24,10 +24,10 @@ def SendText(content,emailcontent=None,plotfiles=[],datafiles=[],numbers=None,em
         mailserver.ehlo()
         mailserver.login(pr.username, pr.password)
         msg = MIMEMultipart()
-        msg['Subject'] = 'GW ALERT'
+        msg['Subject'] = AlertType +' GW ALERT'
         msg['From'] = pr.username
         #msg['Date'] = email.utils.localtime()
-        #msg.preamble = 'Gravitational Wave Alert'
+        msg.preamble = 'Gravitational Wave Alert'
         msg.attach(MIMEText(content))
         for number,carrier in numbers:
             msg['To'] = number+carriers[carrier]
@@ -35,11 +35,11 @@ def SendText(content,emailcontent=None,plotfiles=[],datafiles=[],numbers=None,em
             #mailserver.sendmail(pr.username, number + carriers[carrier], msg.as_string())
             print("Sent {} to {}.".format(content,number))
         msg = MIMEMultipart()
-        msg['Subject'] = 'GW alert'
+        msg['Subject'] = AlertType +' GW ALERT'
         msg['From'] = pr.username
         msg.preamble = 'Gravitational Wave Alert'
         if emailcontent == None:
-            msg.attach(MIMEText(content))
+            msg.attach(MIMEText(content,'html'))
         else:
             msg.attach(MIMEText(emailcontent))
         for datafile in datafiles:
@@ -54,10 +54,16 @@ def SendText(content,emailcontent=None,plotfiles=[],datafiles=[],numbers=None,em
             if not os.path.exists(plotfile):
                 print("Couldn't find " + plotfile)
                 continue
-            with open(plotfile,'rb') as f:
-                attach = MIMEApplication(f.read(),'pdf')
-                attach.add_header('Content-Disposition', 'attachment', filename = plotfile)
-                msg.attach(attach)
+            if plotfile.endswith('pdf'):
+                with open(plotfile,'rb') as f:
+                    attach = MIMEApplication(f.read(),'pdf')
+                    attach.add_header('Content-Disposition', 'attachment', filename = plotfile)
+                    msg.attach(attach)
+            else:
+                with open(plotfile,'rb') as f:
+                    img = MIMEImage(f.read())
+                    img.add_header('Content-ID', '<{}>'.format(plotfile))
+                    msg.attach(img)
         for em in emails:
             mailserver.sendmail(pr.username,em,msg.as_string())
             print("Sent alert to {}.".format(em))

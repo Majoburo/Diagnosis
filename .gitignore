@@ -6,6 +6,7 @@ galaxies*.dat
 MS*
 *pdf
 *.stdout
+time_last.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
