@@ -399,8 +399,9 @@ def get_LST(targf = 'galaxies2MASS.dat'):
     #note names are off.... but ok.
 
     #horizontal lines
-        llines = np.arange(np.min(probnorm),np.max(probnorm),ystep)
-        for l in llines:
+        if len(probnorm)>1:
+            llines = np.arange(np.min(probnorm),np.max(probnorm),ystep)
+            for l in llines:
                 a.plot([-1+offs,25+offs],[l,l],color='grey',lw=1,ls=':',alpha=0.8)
 
 

@@ -116,7 +116,7 @@ List of at most 100 most probable observable galaxies with their corresponding L
 List of at most 100 most probable observable galaxies formated for phase II observations.
 
 #### MOLL_GWHET_{EVENT}.pdf
-![MOLL_GWHET_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/MOLL_GWHET_MS191113v.png)
+![MOLL_GWHET_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/MOLL_example.png)
 
 Mollweide projection plot of the sky for the time of the alert. It displays:
 - PURPLE: HET pupil.
@@ -126,7 +126,7 @@ Mollweide projection plot of the sky for the time of the alert. It displays:
 - PINK: Bellow the horizon.
 
 #### LSTs_{EVENT}.pdf
-![LSTs_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/LSTs_MS191113v.pdf)
+![LSTs_{EVENT}.pdf](https://github.com/Majoburo/Diagnosis/blob/master/LSTs_example.png)
 
 
 Plot of at most 100 most probable observable galaxies with their corresponding LSTs.

@@ -28,6 +28,7 @@ def make_phaseii(lstfile):
         f.write('TRACK_LIST\n')
         f.write(' OBJECT\tRA\tDEC\tPIPRI\n')
         targets = np.loadtxt(lstfile,skiprows=1,dtype=np.str)
+        targets = np.atleast_2d(targets)
         dec = Angle(targets[:,2],u.degree).dms#.to_string(unit=u.degree,sep=':')
         ra = Angle(targets[:,1],u.degree).hms#.to_string(unit=u.hour,sep=':')
         dec = ["{:+03.0f}:{:02.0f}:{:05.2f}".format(dd[0],abs(float(dd[1])),abs(float(dd[2]))) for dd in zip(dec[0],dec[1],dec[2])]
