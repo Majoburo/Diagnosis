@@ -50,9 +50,11 @@ def process_gcn(payload, root):
               elem.attrib['value']
               for elem in root.iterfind('.//Param')}
     params['role'] = root.attrib['role']
+
     if params['AlertType'] == 'Retraction':
         email_ip.SendText(params['GraceID']+' Retracted.', AlertType = params['role'].upper(), recipients = args.recipients )
         return
+
     if params['role'] == 'test' and not args.graceid:
         return
 
@@ -174,7 +176,7 @@ def main():
         urllib.request.urlretrieve('https://gracedb.ligo.org/apiweb/superevents/'+args.graceid+'/files/',"index.html")
         with open('index.html') as f: a = json.load(f)
         xmlfiles = [key for key in a.keys() if key.endswith('xml')]
-        latestxml = sorted(xmlfiles)[-2]
+        latestxml = sorted(xmlfiles)[-1]
         urllib.request.urlretrieve('https://gracedb.ligo.org/apiweb/superevents/'+args.graceid+'/files/'+latestxml,latestxml)
         payload = open(latestxml, 'rb').read()
         root = lxml.etree.fromstring(payload)
