@@ -51,11 +51,11 @@ def process_gcn(payload, root):
               for elem in root.iterfind('.//Param')}
     params['role'] = root.attrib['role']
 
-    if params['AlertType'] == 'Retraction':
-        email_ip.SendText(params['GraceID']+' Retracted.', AlertType = params['role'].upper(), recipients = args.recipients )
-        return
 
     if params['role'] == 'test' and not args.graceid:
+        return
+    if params['AlertType'] == 'Retraction':
+        email_ip.SendText(params['GraceID']+' Retracted.', AlertType = params['role'].upper(), recipients = args.recipients )
         return
 
     # Filter non 'CBC' events or those have no chance of EMBRIGHT.
