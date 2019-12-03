@@ -159,6 +159,8 @@ def send_notifications(params,timetill90,text=False,email=True):
                             <td> <img width="100%%" src="cid:%s"> </td>\
                             </tr>\
                             </table>'%(*[x.format(params['GraceID']) for x in ['MOLL_GWHET_{}.png','piechart_{}.png']],)
+            emailcontent += "Legend for the Clear Sky Chart: https://www.cleardarksky.com/c/McDonaldObTXkey.html \n<br/>"
+            emailcontent += '<xmp><a href=http://www.cleardarksky.com/c/McDonaldObTXkey.html><img src="http://www.cleardarksky.com/c/McDonaldObTXcsk.gif?c=298812"></a></xmp>\n'
             email_ip.SendText(emailcontent,
                     AlertType = params['role'].upper(),
                     plotfiles = [x.format(params['GraceID']) for x in ['LSTs_{}.pdf','MOLL_GWHET_{}.png','piechart_{}.png']],
@@ -176,7 +178,7 @@ def main():
         urllib.request.urlretrieve('https://gracedb.ligo.org/apiweb/superevents/'+args.graceid+'/files/',"index.html")
         with open('index.html') as f: a = json.load(f)
         xmlfiles = [key for key in a.keys() if key.endswith('xml')]
-        latestxml = sorted(xmlfiles)[-1]
+        latestxml = sorted(xmlfiles)[-2]
         urllib.request.urlretrieve('https://gracedb.ligo.org/apiweb/superevents/'+args.graceid+'/files/'+latestxml,latestxml)
         payload = open(latestxml, 'rb').read()
         root = lxml.etree.fromstring(payload)
