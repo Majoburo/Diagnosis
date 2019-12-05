@@ -178,7 +178,7 @@ def main():
         urllib.request.urlretrieve('https://gracedb.ligo.org/apiweb/superevents/'+args.graceid+'/files/',"index.html")
         with open('index.html') as f: a = json.load(f)
         xmlfiles = [key for key in a.keys() if key.endswith('xml')]
-        latestxml = sorted(xmlfiles)[-2]
+        latestxml = sorted(xmlfiles)[-1]
         urllib.request.urlretrieve('https://gracedb.ligo.org/apiweb/superevents/'+args.graceid+'/files/'+latestxml,latestxml)
         payload = open(latestxml, 'rb').read()
         root = lxml.etree.fromstring(payload)
