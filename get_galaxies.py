@@ -68,8 +68,6 @@ def write_catalog(params,catalog):
         theta = 0.5*np.pi - cat1['DEJ2000']*np.pi/180
         phi = cat1['RAJ2000']*np.pi/180
         cls = cdf(probb)
-        import pdb
-        pdb.set_trace()
         ipix = hp.ang2pix(nside, theta, phi)
         cls = cls[ipix]
 
