@@ -114,8 +114,8 @@ def process_fits(recipients, params = None):
             print('{:.1f} hours till you can observe the 90 % prob region.'.format(
                 timetill90))
             send_notifications(params,timetill90,text=True,email=False)
-            get_galaxies.write_catalog(params,'GLADE')
-            mincontour = get_LST.get_LST(targf = 'galaxies%s_%s.dat'%('GLADE',params['GraceID']))
+            get_galaxies.write_catalog(params,'MANGROVE')
+            mincontour = get_LST.get_LST(targf = 'galaxies%s_%s.dat'%('MANGROVE',params['GraceID']))
             make_phaseii.make_phaseii('LSTs_{}.out'.format(params['GraceID']))
             send_notifications(params,timetill90)
 
