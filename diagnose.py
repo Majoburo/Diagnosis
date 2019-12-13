@@ -52,7 +52,14 @@ def process_gcn(payload, root):
     params['role'] = root.attrib['role']
 
 
-    if params['role'] == 'test' and not args.graceid:
+    #if params['role'] == 'test' and not args.graceid:
+    #    return
+    if not args.graceid:
+        return
+    if params['role'] == 'test':
+        with open('./test.dat','w') as f:
+            print("working")
+            f.write("working")
         return
     if params['AlertType'] == 'Retraction':
         email_ip.SendText(params['GraceID']+' Retracted.', AlertType = params['role'].upper(), recipients = args.recipients )
@@ -187,4 +194,5 @@ def main():
     else:
         gcn.listen(handler = process_gcn, port=8099)
 if __name__== "__main__":
-   main()
+    print("running")
+    main()
